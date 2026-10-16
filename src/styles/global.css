@@ -198,7 +198,7 @@ body {
 
 .freq a:hover {
     opacity: 1;
-    color: var(--Z_Accent);
+    color: var(--Z_Link);
 }
 
 .freq li:last-child a {
@@ -293,7 +293,7 @@ a {
 }
 
 a:hover {
-    opacity: 0.75;
+    opacity: 0.9;
 }
 
 a:focus-visible {
