@@ -44,7 +44,7 @@ try {
 
 <Layout
     title="iFlex"
-    description="Graphic designer, video editor, content manager, community builder, and aviation geek."
+    description="Aviation geek, Nerd, Content/community manager, and so much more."
 >
     <div class="shell">
         <main class="content" id="main">
@@ -114,11 +114,18 @@ try {
                     <h2 id="zouna-heading">the zouna engine,</h2>
                 </div>
                 <p>
-                    I am getting into game reverse engineering My current target
-                    is the Zouna engine behind A Plague Tale, which might be the
-                    hardest engine I could have picked to start with. That is
-                    exactly why it is interesting Nothing here is shipped or
-                    documented yet,
+                    I'm getting into game reverse engineering and my current
+                    target is the
+                    <a
+                        href="https://github.com/widberg/fmtk/wiki/Zouna-Modding-Resources"
+                        rel="noopener noreferrer"
+                    >
+                        Zouna engine
+                    </a>
+                    which might not have been the best idea as its the hardest
+                    engine i coulda picked to start. it's behind a lot of
+                    amazing games one of them is my favorite series A Plague
+                    Tale.
                 </p>
             </section>
             <div class="duo">
@@ -148,7 +155,7 @@ try {
                         <li>HyperX SoloCast (With heavy custom EQ)</li>
                     </ul>
                 </section>
-                <section class="card" aria-labelledby="media-heading">
+                <section class="card" id="Z_Listen" aria-labelledby="listening-heading">
                     <div class="head">
                         <span class="chip">
                             <svg aria-hidden="true" focusable="false"
@@ -163,15 +170,16 @@ try {
                                 <circle cx="16.5" cy="16" r="2.5" />
                             </svg>
                         </span>
-                        <h2 id="media-heading">media</h2>
+                        <h2 id="listening-heading">listening</h2>
                     </div>
-                    <ul class="rows">
-                        <li>Random ahh playlist</li>
-                        <li>less random</li>
-                        <li>A Plague Tale Requiem</li>
-                        <li>Requiem, nothing comes close.</li>
-                        <li>Innocence, Resonance, TLOU2, Stray, GTA SA</li>
-                    </ul>
+                    <figure class="Z_Banner" id="Z_Banner" hidden>
+                        <img id="Z_Art" width="640" height="320" alt="" draggable="false" />
+                        <span class="Z_Shade" aria-hidden="true"></span>
+                        <figcaption>
+                            <a id="Z_Song" rel="noopener noreferrer"></a>
+                            <a id="Z_Artist" rel="noopener noreferrer"></a>
+                        </figcaption>
+                    </figure>
                 </section>
             </div>
             <section class="card" aria-labelledby="sim-heading">
@@ -193,9 +201,15 @@ try {
                     <h2 id="sim-heading">aviation</h2>
                 </div>
                 <p>
-                    VATSIM pilot and Tower trainee for Copenhagen Kastrup
-                    (EKCH). i fly the A320, A350, A380, and 777-300ER on the
-                    network.
+                    <a
+                        href="https://vatsim.net/docs/about/about-vatsim"
+                        rel="noopener noreferrer"
+                    >
+                        VATSIM
+                    </a>
+                     pilot and tower trainee for copenhagen kastrup (EKCH), i
+                    fly the a320, a350, a380, and 777-300er / 777f , md-11,
+                    piper pa28, Extra E330 on the network.
                 </p>
             </section>
             <section class="card" aria-labelledby="projects-heading">
@@ -244,29 +258,14 @@ try {
                             </a>
                         </li>
                     ))}
-                    <li>
-                        <a
-                            href="https://github.com/iFlex0x"
-                            rel="noopener noreferrer"
-                        >
-                            <span>more on my github</span>
-                            <span class="net">
-                                <svg role="img"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <title>more on my github</title>
-                                    <path d="M14 4h6v6M20 4L11 13" />
-                                    <path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6" />
-                                </svg>
-                            </span>
-                        </a>
-                    </li>
                 </ul>
+                <a
+                    class="more"
+                    href="https://github.com/iFlex0x"
+                    rel="noopener noreferrer"
+                >
+                    more on my github
+                </a>
             </section>
         </main>
         <aside class="rail">
@@ -430,7 +429,7 @@ try {
                     src="/work/therac.jpg"
                     width="1600"
                     height="900"
-                    alt="thumbnail artwork by iflex"
+                    alt="thumbnail about the therac-25 machine, text reads it lied"
                     loading="lazy"
                     decoding="async"
                     draggable="false"
@@ -441,7 +440,7 @@ try {
                     src="/work/fierce.jpg"
                     width="1000"
                     height="1250"
-                    alt="poster artwork by iflex"
+                    alt="poster of the main character of resonance, a plague tale legacy"
                     loading="lazy"
                     decoding="async"
                     draggable="false"
@@ -452,7 +451,7 @@ try {
                     src="/work/shelby.jpg"
                     width="1000"
                     height="1250"
-                    alt="poster artwork by iflex"
+                    alt="ROG rivals gameday poster for shelby"
                     loading="lazy"
                     decoding="async"
                     draggable="false"
@@ -463,7 +462,7 @@ try {
                     src="/work/hour47.jpg"
                     width="1600"
                     height="900"
-                    alt="thumbnail artwork by iflex"
+                    alt="thumbnail about editing until i learn vfx"
                     loading="lazy"
                     decoding="async"
                     draggable="false"
@@ -472,4 +471,174 @@ try {
         </ul>
     </section>
     <Z_Companion mode="patrol" anchorSelector="footer" />
+
+    <script>
+        const Z_Banner = document.getElementById("Z_Banner");
+        const Z_Head = document.getElementById("listening-heading");
+        const Z_Art = document.getElementById("Z_Art") as HTMLImageElement | null;
+        const Z_Song = document.getElementById("Z_Song") as HTMLAnchorElement | null;
+        const Z_Artist = document.getElementById("Z_Artist") as HTMLAnchorElement | null;
+        const Z_Key = "Z_LastSong";
+
+        function Z_Ago(Z_T: number) {
+            const Z_M = Math.floor((Date.now() - Z_T) / 60000);
+            if (Z_M < 30) return "recently";
+            if (Z_M < 60) return `${Z_M} minutes ago`;
+            const Z_H = Math.floor(Z_M / 60);
+            if (Z_H < 24) return `${Z_H}h ago`;
+            return `${Math.floor(Z_H / 24)}d ago`;
+        }
+
+        const Z_Ghosts = "█▓▒░+/\\<>|{}[]01";
+        let Z_Current = "";
+
+        function Z_Decode(Z_El: HTMLElement, Z_Text: string) {
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                Z_El.textContent = Z_Text;
+                return;
+            }
+            const Z_Chars = [...Z_Text];
+            let Z_N = 0;
+            const Z_Step = window.setInterval(() => {
+                Z_N += 1;
+                let Z_Out = "";
+                for (let Z_I = 0; Z_I < Z_Chars.length; Z_I++) {
+                    if (Z_I < Z_N) {
+                        Z_Out += Z_Chars[Z_I];
+                    } else if (Z_Chars[Z_I] === " ") {
+                        Z_Out += " ";
+                    } else {
+                        Z_Out += Z_Ghosts[Math.floor(Math.random() * Z_Ghosts.length)];
+                    }
+                }
+                Z_El.textContent = Z_Out;
+                if (Z_N >= Z_Chars.length) window.clearInterval(Z_Step);
+            }, 28);
+        }
+
+        function Z_Reveal() {
+            const Z_Fig = Z_Banner as HTMLElement | null;
+            if (!Z_Fig || !Z_Fig.hidden) return;
+            Z_Fig.hidden = false;
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => Z_Fig.classList.add("Z_In"));
+            });
+        }
+
+        function Z_Show(Z_SongV: string, Z_ArtistV: string, Z_ArtV: string, Z_TrackV: string, Z_StateV: string) {
+            if (!Z_Banner || !Z_Head || !Z_Art || !Z_Song || !Z_Artist) return;
+            Z_Head.textContent = Z_StateV;
+            if (Z_TrackV === Z_Current) return;
+            Z_Current = Z_TrackV;
+            Z_Art.style.opacity = "0";
+            const Z_Pre = new Image();
+            Z_Pre.decoding = "async";
+            Z_Pre.onload = () => {
+                Z_Art.src = Z_ArtV;
+                Z_Art.alt = `${Z_SongV} by ${Z_ArtistV}`;
+                Z_Art.style.opacity = "1";
+                Z_Decode(Z_Song, Z_SongV);
+                Z_Decode(Z_Artist, Z_ArtistV);
+                const Z_Url = `https://open.spotify.com/track/${Z_TrackV}`;
+                Z_Song.href = Z_Url;
+                Z_Artist.href = Z_Url;
+                Z_Reveal();
+            };
+            Z_Pre.onerror = () => {
+                Z_Art.src = Z_ArtV;
+                Z_Art.alt = `${Z_SongV} by ${Z_ArtistV}`;
+                Z_Art.style.opacity = "1";
+                Z_Song.textContent = Z_SongV;
+                Z_Artist.textContent = Z_ArtistV;
+                const Z_Url = `https://open.spotify.com/track/${Z_TrackV}`;
+                Z_Song.href = Z_Url;
+                Z_Artist.href = Z_Url;
+                Z_Reveal();
+            };
+            Z_Pre.src = Z_ArtV;
+        }
+
+        let Z_Live = false;
+
+        function Z_Tick() {
+            if (Z_Live || document.hidden) return;
+            let Z_Last = null;
+            try {
+                Z_Last = JSON.parse(localStorage.getItem(Z_Key) ?? "null");
+            } catch { /* private mode */ }
+            if (Z_Last && Z_Head) Z_Head.textContent = "listened " + Z_Ago(Z_Last.t);
+        }
+
+        function Z_Render(Z_Data: any) {
+            const Z_Sp = Z_Data?.spotify;
+            if (Z_Data?.listening_to_spotify && Z_Sp) {
+                const Z_Track = {
+                    song: Z_Sp.song as string,
+                    artist: Z_Sp.artist as string,
+                    art: Z_Sp.album_art_url as string,
+                    id: Z_Sp.track_id as string,
+                    t: Date.now(),
+                };
+                try {
+                    localStorage.setItem(Z_Key, JSON.stringify(Z_Track));
+                } catch { /* private mode */ }
+                Z_Live = true;
+                Z_Show(Z_Track.song, Z_Track.artist, Z_Track.art, Z_Track.id, "listening now");
+            } else {
+                Z_Live = false;
+                let Z_Last = null;
+                try {
+                    Z_Last = JSON.parse(localStorage.getItem(Z_Key) ?? "null");
+                } catch { /* private mode */ }
+                if (Z_Last) Z_Show(Z_Last.song, Z_Last.artist, Z_Last.art, Z_Last.id, "listened " + Z_Ago(Z_Last.t));
+            }
+        }
+
+        async function Z_Poll() {
+            if (document.hidden) return;
+            try {
+                const Z_Res = await fetch("https://api.lanyard.rest/v1/users/1007939118925361212");
+                if (!Z_Res.ok) return;
+                const Z_Body = await Z_Res.json();
+                Z_Render(Z_Body?.data);
+            } catch { /* offline, socket covers it */ }
+        }
+
+        function Z_Sock() {
+            let Z_Ws: WebSocket | null = null;
+            let Z_Beat = 0;
+            try {
+                Z_Ws = new WebSocket("wss://api.lanyard.rest/socket");
+            } catch {
+                return;
+            }
+            Z_Ws.onmessage = (Z_Ev) => {
+                let Z_Msg: any = null;
+                try {
+                    Z_Msg = JSON.parse(Z_Ev.data);
+                } catch {
+                    return;
+                }
+                if (Z_Msg.op === 1) {
+                    const Z_Ms = Z_Msg.d?.heartbeat_interval ?? 30000;
+                    window.clearInterval(Z_Beat);
+                    Z_Beat = window.setInterval(() => {
+                        Z_Ws?.send(JSON.stringify({ op: 3 }));
+                    }, Z_Ms);
+                    Z_Ws?.send(JSON.stringify({ op: 2, d: { subscribe_to_id: "1007939118925361212" } }));
+                } else if (Z_Msg.op === 0 && (Z_Msg.t === "INIT_STATE" || Z_Msg.t === "PRESENCE_UPDATE")) {
+                    Z_Render(Z_Msg.d);
+                }
+            };
+            Z_Ws.onclose = () => {
+                window.clearInterval(Z_Beat);
+                window.setTimeout(Z_Sock, 10000);
+            };
+        }
+
+        Z_Sock();
+        Z_Poll();
+        window.setInterval(Z_Poll, 60000);
+        window.setInterval(Z_Tick, 30000);
+    </script>
 </Layout>
