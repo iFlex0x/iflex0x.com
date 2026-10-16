@@ -553,8 +553,8 @@ try {
                 Z_Art.src = Z_ArtV;
                 Z_Art.alt = `${Z_SongV} by ${Z_ArtistV}`;
                 Z_Art.style.opacity = "1";
-                Z_Song.textContent = Z_SongV;
-                Z_Artist.textContent = Z_ArtistV;
+                Z_Decode(Z_Song, Z_SongV);
+                Z_Decode(Z_Artist, Z_ArtistV);
                 const Z_Url = `https://open.spotify.com/track/${Z_TrackV}`;
                 Z_Song.href = Z_Url;
                 Z_Artist.href = Z_Url;
