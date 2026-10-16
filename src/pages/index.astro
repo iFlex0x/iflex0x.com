@@ -598,8 +598,12 @@ try {
 
         async function Z_Poll() {
             if (document.hidden) return;
-            try {
-                const Z_Api = await fetch("/api/listening");
+            const Z_Local =
+                location.hostname === "localhost" ||
+                location.hostname === "127.0.0.1";
+            if (!Z_Local) {
+                try {
+                    const Z_Api = await fetch("/api/listening");
                 if (Z_Api.ok) {
                     const Z_J = await Z_Api.json();
                     if (Z_J?.song) {
@@ -609,6 +613,7 @@ try {
                     }
                 }
             } catch { /* no functions locally, fall through */ }
+            }
             try {
                 const Z_Res = await fetch("https://api.lanyard.rest/v1/users/1007939118925361212");
                 if (!Z_Res.ok) return;
