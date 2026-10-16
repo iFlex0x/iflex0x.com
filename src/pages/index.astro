@@ -629,11 +629,8 @@ try {
 
         interface Z_PlaneJson {
             flight?: string;
-            reg?: string;
-            type?: string;
-            desc?: string;
+            hex?: string;
             op?: string;
-            photo?: { src?: string; link?: string; by?: string };
         }
 
         async function Z_Plane() {
@@ -641,20 +638,25 @@ try {
                 const Z_R = await fetch("/api/plane");
                 if (!Z_R.ok) return;
                 const Z_P = (await Z_R.json()) as Z_PlaneJson;
-                if (!Z_P?.reg || !Z_P?.photo?.src) return;
+                if (!Z_P?.hex) return;
                 const Z_Fig = document.getElementById("Z_PlaneFig");
                 const Z_Img = document.getElementById("Z_PlaneArt") as HTMLImageElement | null;
                 const Z_Info = document.getElementById("Z_PlaneInfo");
                 const Z_By = document.getElementById("Z_PlaneBy") as HTMLAnchorElement | null;
                 const Z_Link = document.getElementById("Z_PlaneLink") as HTMLAnchorElement | null;
                 if (!Z_Fig || !Z_Img || !Z_Info || !Z_By || !Z_Link) return;
-                Z_Info.textContent = [Z_P.flight, Z_P.reg, Z_P.type, Z_P.op].filter(Boolean).join(" / ");
-                Z_Img.src = Z_P.photo.src ?? "";
-                Z_Img.alt = `${Z_P.reg} ${Z_P.desc ?? ""}`.trim();
-                if (Z_P.photo.link) Z_Link.href = Z_P.photo.link;
-                if (Z_P.photo.by && Z_P.photo.link) {
-                    Z_By.textContent = `photo: ${Z_P.photo.by}`;
-                    Z_By.href = Z_P.photo.link;
+                Z_Info.textContent = [Z_P.flight, Z_P.op].filter(Boolean).join(" / ");
+                const Z_Pr = await fetch(`https://api.planespotters.net/pub/photos/hex/${Z_P.hex}`);
+                if (!Z_Pr.ok) return;
+                const Z_Ph = ((await Z_Pr.json()) as any)?.photos?.[0];
+                const Z_Src = Z_Ph?.thumbnail_large?.src ?? Z_Ph?.thumbnail?.src;
+                if (!Z_Src) return;
+                Z_Img.src = Z_Src;
+                Z_Img.alt = `${Z_P.flight} ${Z_P.op}`.trim();
+                if (Z_Ph.link) Z_Link.href = Z_Ph.link;
+                if (Z_Ph.photographer && Z_Ph.link) {
+                    Z_By.textContent = `photo: ${Z_Ph.photographer}`;
+                    Z_By.href = Z_Ph.link;
                 }
                 Z_Fig.hidden = false;
             } catch {  }
