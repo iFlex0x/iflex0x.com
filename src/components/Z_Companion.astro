@@ -6,7 +6,6 @@ interface Props {
 }
 
 const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astro.props;
-const roam = mode === "roam";
 ---
 
 <div
@@ -20,7 +19,8 @@ const roam = mode === "roam";
         <div class="Z_Flip">
             <img
                 class="Z_Sprite"
-                src="/rat.png"
+                src="https://media.iflex0x.com/rat.png"
+                data-fallback="/rat.png"
                 alt=""
                 width="56"
                 height="56"
@@ -93,7 +93,6 @@ const roam = mode === "roam";
         };
         const Z_Mouse = { x: -9999, y: -9999 };
         let Z_Last = performance.now();
-        let Z_Raf = 0;
 
         window.addEventListener("pointermove", (Z_E) => {
             Z_Mouse.x = Z_E.clientX;
@@ -103,11 +102,17 @@ const roam = mode === "roam";
             if (Z_S.hop <= 0) Z_S.hop = 1;
         });
 
+        let Z_GroundBox: DOMRect | null = null;
+        let Z_GroundAt = 0;
+
         const Z_Ground = () => {
             const Z_El = Z_Anchor ? document.querySelector(Z_Anchor) : null;
             if (Z_El) {
-                const Z_R = Z_El.getBoundingClientRect();
-                return Z_R.top - Z_Size + 6;
+                if (!Z_GroundBox || performance.now() - Z_GroundAt > 2000) {
+                    Z_GroundBox = Z_El.getBoundingClientRect();
+                    Z_GroundAt = performance.now();
+                }
+                return Z_GroundBox.top - Z_Size + 6;
             }
             return window.innerHeight - Z_Fallback - Z_Size;
         };
@@ -115,6 +120,10 @@ const roam = mode === "roam";
         const Z_Tick = (Z_Now: number) => {
             const Z_Dt = Math.min(0.05, (Z_Now - Z_Last) / 1000);
             Z_Last = Z_Now;
+            if (document.hidden) {
+                requestAnimationFrame(Z_Tick);
+                return;
+            }
 
             const Z_MaxX = Math.max(0, window.innerWidth - Z_Size);
             const Z_MaxY = Math.max(0, window.innerHeight - Z_Size);
@@ -190,8 +199,9 @@ const roam = mode === "roam";
             Z_Flip.style.transform = `scaleX(${Z_S.dirX})`;
             Z_Sprite.style.objectPosition = `${-Z_S.frame * 56}px 0`;
 
-            Z_Raf = requestAnimationFrame(Z_Tick);
+            if (!Z_Reduced) requestAnimationFrame(Z_Tick);
         };
-        Z_Raf = requestAnimationFrame(Z_Tick);
+        Z_Pos.style.transform = `translate3d(${Z_S.x}px, ${Z_Roam ? Z_S.y : 0}px, 0)`;
+        if (!Z_Reduced) requestAnimationFrame(Z_Tick);
     }
 </script>

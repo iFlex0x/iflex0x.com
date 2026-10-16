@@ -1,3 +1,8 @@
 # iflex0x.com
 
-My Active website's source.
+personal homepage of iflex0x, built with astro static and vanilla css.
+
+build: `pnpm install`, `pnpm build`, output in `dist/`.
+preview: `pnpm preview`.
+
+license: all rights reserved.
