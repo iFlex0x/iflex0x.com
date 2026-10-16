@@ -36,7 +36,6 @@ export const onRequest: PagesFunction<Z_Env> = async (Z_Ctx) => {
             }
         }
     } catch {
-        /* fall through to cache */
     }
     if (Z_Seen) {
         const Z_Was = await Z_Ctx.env.Z_LISTEN.get(Z_LiveKey, "json");

@@ -215,6 +215,23 @@ try {
                     fly the a320, a350, a380, and 777-300er / 777f , md-11,
                     piper pa28, Extra E330 on the network.
                 </p>
+                <figure class="Z_Plane" id="Z_PlaneFig" hidden>
+                    <a id="Z_PlaneLink" rel="noopener noreferrer">
+                        <img
+                            id="Z_PlaneArt"
+                            width="900"
+                            height="600"
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            draggable="false"
+                        />
+                    </a>
+                    <figcaption>
+                        <span id="Z_PlaneInfo"></span>
+                        <a id="Z_PlaneBy" rel="noopener noreferrer"></a>
+                    </figcaption>
+                </figure>
             </section>
             <section class="card" aria-labelledby="projects-heading">
                 <div class="head">
@@ -610,6 +627,39 @@ try {
             live?: boolean;
         }
 
+        interface Z_PlaneJson {
+            flight?: string;
+            reg?: string;
+            type?: string;
+            desc?: string;
+            op?: string;
+            photo?: { src?: string; link?: string; by?: string };
+        }
+
+        async function Z_Plane() {
+            try {
+                const Z_R = await fetch("/api/plane");
+                if (!Z_R.ok) return;
+                const Z_P = (await Z_R.json()) as Z_PlaneJson;
+                if (!Z_P?.reg || !Z_P?.photo?.src) return;
+                const Z_Fig = document.getElementById("Z_PlaneFig");
+                const Z_Img = document.getElementById("Z_PlaneArt") as HTMLImageElement | null;
+                const Z_Info = document.getElementById("Z_PlaneInfo");
+                const Z_By = document.getElementById("Z_PlaneBy") as HTMLAnchorElement | null;
+                const Z_Link = document.getElementById("Z_PlaneLink") as HTMLAnchorElement | null;
+                if (!Z_Fig || !Z_Img || !Z_Info || !Z_By || !Z_Link) return;
+                Z_Info.textContent = [Z_P.flight, Z_P.reg, Z_P.type, Z_P.op].filter(Boolean).join(" / ");
+                Z_Img.src = Z_P.photo.src ?? "";
+                Z_Img.alt = `${Z_P.reg} ${Z_P.desc ?? ""}`.trim();
+                if (Z_P.photo.link) Z_Link.href = Z_P.photo.link;
+                if (Z_P.photo.by && Z_P.photo.link) {
+                    Z_By.textContent = `photo: ${Z_P.photo.by}`;
+                    Z_By.href = Z_P.photo.link;
+                }
+                Z_Fig.hidden = false;
+            } catch {  }
+        }
+
         async function Z_Poll() {
             if (document.hidden) return;
             const Z_Local =
@@ -670,6 +720,7 @@ try {
 
         Z_Sock();
         Z_Poll();
+        Z_Plane();
         window.setInterval(Z_Poll, 60000);
         window.setInterval(Z_Tick, 30000);
     </script>

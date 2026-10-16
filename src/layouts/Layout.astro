@@ -27,6 +27,14 @@ const { title, description } = Astro.props;
         <meta property="og:url" content={Astro.url} />
         <meta property="og:image" content="https://media.iflex0x.com/favicon.png" />
         <meta name="darkreader-lock" />
+        <meta name="color-scheme" content="dark light" />
+        <script is:inline>
+            try {
+                var Z_T = localStorage.getItem("Z_Theme");
+                if (!Z_T) Z_T = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+                if (Z_T === "light") document.documentElement.classList.add("Z_Light");
+            } catch (Z_E) {}
+        </script>
         <slot name="head" />
     </head>
     <body>
@@ -43,6 +51,18 @@ const { title, description } = Astro.props;
                 </a>
                 <a href="mailto:ad@iflex0x.com">mail</a>
                 <span class="Z_Zulu" id="Z_Zulu">--:--:--</span>
+            </div>
+            <div class="foot-theme">
+                <button
+                    class="Z_Theme"
+                    id="Z_Theme"
+                    type="button"
+                    aria-pressed="false"
+                    aria-label="switch to light mode"
+                >
+                    <svg class="Z_Moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></svg>
+                    <svg class="Z_Sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>
+                </button>
             </div>
             <p class="credits">
                 inspired by
@@ -87,6 +107,30 @@ const { title, description } = Astro.props;
             }
             Z_Clock();
             window.setInterval(Z_Clock, 1000);
+            const Z_Mq = window.matchMedia("(prefers-color-scheme: light)");
+            function Z_Mode(Z_T: string) {
+                document.documentElement.classList.toggle("Z_Light", Z_T === "light");
+                const Z_B = document.getElementById("Z_Theme");
+                if (Z_B) {
+                    Z_B.setAttribute("aria-pressed", String(Z_T === "light"));
+                    Z_B.setAttribute("aria-label", Z_T === "light" ? "switch to dark mode" : "switch to light mode");
+                }
+                const Z_M = document.querySelector('meta[name="theme-color"]');
+                if (Z_M) Z_M.setAttribute("content", Z_T === "light" ? "#e4ddcc" : "#070707");
+            }
+            Z_Mode(document.documentElement.classList.contains("Z_Light") ? "light" : "dark");
+            Z_Mq.addEventListener("change", (Z_E) => {
+                try {
+                    if (!localStorage.getItem("Z_Theme")) Z_Mode(Z_E.matches ? "light" : "dark");
+                } catch {  }
+            });
+            document.getElementById("Z_Theme")?.addEventListener("click", () => {
+                const Z_Next = document.documentElement.classList.contains("Z_Light") ? "dark" : "light";
+                try {
+                    localStorage.setItem("Z_Theme", Z_Next);
+                } catch {  }
+                Z_Mode(Z_Next);
+            });
         </script>
     </body>
 </html>
