@@ -26,9 +26,7 @@ export const onRequest: PagesFunction<Z_Env> = async (Z_Ctx) => {
                 return Response.json({ ...Z_Track, live: true });
             }
         }
-    } catch {
-        /* fall through to cache */
-    }
+    } catch {}
     if (Z_Seen) {
         const Z_Was = await Z_Ctx.env.Z_LISTEN.get(Z_LiveKey, "json");
         if (Z_Was && (Z_Was as any).song) {
