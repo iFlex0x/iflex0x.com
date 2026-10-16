@@ -572,18 +572,27 @@ try {
         function Z_Render(Z_Data: any) {
             const Z_Sp = Z_Data?.spotify;
             if (Z_Data?.listening_to_spotify && Z_Sp) {
-                Z_RenderTrack(
-                    { song: Z_Sp.song, artist: Z_Sp.artist, art: Z_Sp.album_art_url, id: Z_Sp.track_id },
-                    true,
-                );
+                const Z_Track = {
+                    song: Z_Sp.song as string,
+                    artist: Z_Sp.artist as string,
+                    art: Z_Sp.album_art_url as string,
+                    id: Z_Sp.track_id as string,
+                    t: Date.now(),
+                };
+                try {
+                    localStorage.setItem(Z_Key, JSON.stringify(Z_Track));
+                } catch { /* private mode */ }
+                Z_Live = true;
+                Z_Show(Z_Track.song, Z_Track.artist, Z_Track.art, Z_Track.id, "listening now");
                 return;
             }
+            Z_Live = false;
             let Z_Last = null;
             try {
                 Z_Last = JSON.parse(localStorage.getItem(Z_Key) ?? "null");
             } catch { /* private mode */ }
             if (Z_Last) {
-                Z_RenderTrack(Z_Last, false);
+                Z_Show(Z_Last.song, Z_Last.artist, Z_Last.art, Z_Last.id, "listened " + Z_Ago(Z_Last.t));
             }
         }
 
