@@ -1,5 +1,5 @@
 :root {
-    --Z_Max: 1120px; /* shell cap */
+    --Z_Max: 1120px;
     --Z_Bg: #070707;
     --Z_Card: #101010;
     --Z_Ink: #ffffff;
@@ -129,7 +129,7 @@ body {
 
 .about .head,
 .about .likes {
-    padding-right: 240px; /* clears hugo */
+    padding-right: 240px;
 }
 
 .hugo {

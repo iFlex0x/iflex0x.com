@@ -12,7 +12,7 @@ interface Z_Repo {
 
 const Z_N = 3;
 const Z_Url =
-    "https://api.github.com/users/iFlex0x/repos?sort=pushed&per_page=10"; /* buffer: forks filtered below */
+    "https://api.github.com/users/iFlex0x/repos?sort=pushed&per_page=10";
 const Z_Init = {
     headers: new Headers({
         "User-Agent": Astro.url.host,
@@ -565,7 +565,7 @@ try {
             let Z_Last = null;
             try {
                 Z_Last = JSON.parse(localStorage.getItem(Z_Key) ?? "null");
-            } catch { /* private mode */ }
+            } catch {  }
             if (Z_Last && Z_Head) Z_Head.textContent = "listened " + Z_Ago(Z_Last.t);
         }
 
@@ -581,7 +581,7 @@ try {
                 };
                 try {
                     localStorage.setItem(Z_Key, JSON.stringify(Z_Track));
-                } catch { /* private mode */ }
+                } catch {  }
                 Z_Live = true;
                 Z_Show(Z_Track.song, Z_Track.artist, Z_Track.art, Z_Track.id, "listening now");
                 return;
@@ -590,7 +590,7 @@ try {
             let Z_Last = null;
             try {
                 Z_Last = JSON.parse(localStorage.getItem(Z_Key) ?? "null");
-            } catch { /* private mode */ }
+            } catch {  }
             if (Z_Last) {
                 Z_Show(Z_Last.song, Z_Last.artist, Z_Last.art, Z_Last.id, "listened " + Z_Ago(Z_Last.t));
             }
@@ -612,14 +612,14 @@ try {
                         return;
                     }
                 }
-            } catch { /* no functions locally, fall through */ }
+            } catch {  }
             }
             try {
                 const Z_Res = await fetch("https://api.lanyard.rest/v1/users/1007939118925361212");
                 if (!Z_Res.ok) return;
                 const Z_Body = await Z_Res.json();
                 Z_Render(Z_Body?.data);
-            } catch { /* offline, socket covers it */ }
+            } catch {  }
         }
 
         function Z_Sock() {
