@@ -1,5 +1,5 @@
 :root {
-    --Z_Max: 1120px;
+    --Z_Max: 1120px; /* shell cap */
     --Z_Bg: #070707;
     --Z_Card: #101010;
     --Z_Ink: #ffffff;
@@ -152,7 +152,7 @@ body {
 
 .duo {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 16px;
 }
 
@@ -187,6 +187,11 @@ body {
     font-size: 14px;
 }
 
+.freq a:hover {
+    opacity: 1;
+    color: var(--Z_Accent);
+}
+
 .freq li:last-child a {
     border-bottom: none;
 }
@@ -205,11 +210,19 @@ body {
 }
 
 .proj .desc {
+    flex: 1;
+    min-width: 0;
     font-size: 13px;
     color: var(--Z_Mute);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.more {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 14px;
 }
 
 .net svg {
@@ -258,17 +271,22 @@ body {
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: scale 0.25s ease;
+}
+
+.work li:hover img {
+    scale: 1.03;
 }
 
 a {
     color: var(--Z_Accent);
+    transition: opacity 0.15s ease;
 }
 
 a:hover {
-    text-decoration: underline;
+    opacity: 0.75;
 }
 
-a:focus,
 a:focus-visible {
     outline: 2px solid var(--Z_Accent);
     outline-offset: 2px;
@@ -360,7 +378,90 @@ footer {
     .card {
         padding: 16px;
     }
+}
 
+#Z_Listen {
+    position: relative;
+}
+
+.Z_Banner[hidden] {
+    display: none;
+}
+
+.Z_Banner.Z_In {
+    opacity: 1;
+    transform: none;
+}
+
+.Z_Banner {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    background-color: var(--Z_Line);
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease;
+}
+
+.Z_Banner img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.Z_Shade {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        to top,
+        rgba(7, 7, 7, 0.94) 0%,
+        rgba(7, 7, 7, 0.45) 45%,
+        rgba(198, 0, 0, 0) 80%
+    );
+}
+
+.Z_Banner figcaption {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+#Z_Song {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--Z_Ink);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#Z_Artist {
+    font-size: 14px;
+    color: var(--Z_Mute);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 700px) {
     .duo {
         grid-template-columns: 1fr;
     }
