@@ -1,11 +1,12 @@
 :root {
-    --Z_Max: 1120px;
+    --Z_Max: 1120px; /* shell cap */
     --Z_Bg: #070707;
     --Z_Card: #101010;
     --Z_Ink: #ffffff;
     --Z_Mute: #9a9a9a;
     --Z_Line: #1a1a1a;
     --Z_Accent: #c60000;
+    --Z_Link: #ff4d4d;
 }
 
 body {
@@ -120,6 +121,14 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
+}
+
+.Z_Zulu {
+    margin-left: auto;
+    font-family: ui-monospace, monospace;
+    font-size: 13px;
+    color: var(--Z_Mute);
+    flex-shrink: 0;
 }
 
 .about {
@@ -279,7 +288,7 @@ body {
 }
 
 a {
-    color: var(--Z_Accent);
+    color: var(--Z_Link);
     transition: opacity 0.15s ease;
 }
 
@@ -288,7 +297,7 @@ a:hover {
 }
 
 a:focus-visible {
-    outline: 2px solid var(--Z_Accent);
+    outline: 2px solid var(--Z_Link);
     outline-offset: 2px;
 }
 
@@ -318,6 +327,7 @@ footer {
 .foot-row {
     display: flex;
     gap: 16px;
+    align-items: baseline;
 }
 
 .foot-row a,

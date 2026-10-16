@@ -3,6 +3,7 @@ interface Z_Env {
 }
 
 export const onRequest: PagesFunction<Z_Env> = async (Z_Ctx) => {
+    const Z_Heads = { "Cache-Control": "public, s-maxage=15" };
     const Z_LiveKey = "live";
     const Z_LastKey = "last";
     let Z_Seen = false;
@@ -22,20 +23,34 @@ export const onRequest: PagesFunction<Z_Env> = async (Z_Ctx) => {
                     id: Z_Sp.track_id,
                     t: Date.now(),
                 };
-                await Z_Ctx.env.Z_LISTEN.put(Z_LiveKey, JSON.stringify(Z_Track));
-                return Response.json({ ...Z_Track, live: true });
+                const Z_Prev = await Z_Ctx.env.Z_LISTEN.get(Z_LiveKey, "json");
+                if ((Z_Prev as any)?.id !== Z_Track.id) {
+                    await Z_Ctx.env.Z_LISTEN.put(
+                        Z_LiveKey,
+                        JSON.stringify(Z_Track),
+                    );
+                }
+                return Response.json({ ...Z_Track, live: true }, {
+                    headers: Z_Heads,
+                });
             }
         }
-    } catch {}
+    } catch {
+        /* fall through to cache */
+    }
     if (Z_Seen) {
         const Z_Was = await Z_Ctx.env.Z_LISTEN.get(Z_LiveKey, "json");
         if (Z_Was && (Z_Was as any).song) {
             const Z_Frozen = { ...(Z_Was as any), t: Date.now() };
             await Z_Ctx.env.Z_LISTEN.put(Z_LastKey, JSON.stringify(Z_Frozen));
             await Z_Ctx.env.Z_LISTEN.delete(Z_LiveKey);
-            return Response.json({ ...Z_Frozen, live: false });
+            return Response.json({ ...Z_Frozen, live: false }, {
+                headers: Z_Heads,
+            });
         }
     }
     const Z_Last = await Z_Ctx.env.Z_LISTEN.get(Z_LastKey, "json");
-    return Response.json({ ...((Z_Last as any) ?? {}), live: false });
+    return Response.json({ ...((Z_Last as any) ?? {}), live: false }, {
+        headers: Z_Heads,
+    });
 };

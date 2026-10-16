@@ -19,7 +19,7 @@ const { title, description } = Astro.props;
         <meta name="author" content="iFlex0x" />
         <meta name="description" content={description} />
         <meta name="theme-color" content="#070707" />
-        <link rel="icon" href="/favicon.png" />
+        <link rel="icon" href="https://media.iflex0x.com/favicon.png" />
         <title>{title}</title>
         <meta property="og:type" content="website" />
         <meta property="og:title" content={title} />
@@ -42,6 +42,7 @@ const { title, description } = Astro.props;
                     source
                 </a>
                 <a href="mailto:ad@iflex0x.com">mail</a>
+                <span class="Z_Zulu" id="Z_Zulu">--:--:--</span>
             </div>
             <p class="credits">
                 inspired by
@@ -67,6 +68,25 @@ const { title, description } = Astro.props;
                 const Z_T = Z_E.target as HTMLElement | null;
                 if (Z_T && Z_T.closest("img, .work")) Z_E.preventDefault();
             });
+            document.addEventListener("error", (Z_E) => {
+                const Z_T = Z_E.target as HTMLElement | null;
+                if (Z_T && Z_T.tagName === "IMG") {
+                    const Z_Fb = (Z_T as HTMLImageElement).dataset.fallback;
+                    if (Z_Fb) {
+                        delete (Z_T as HTMLImageElement).dataset.fallback;
+                        (Z_T as HTMLImageElement).src = Z_Fb;
+                    }
+                }
+            }, true);
+            const Z_Zulu = document.getElementById("Z_Zulu");
+            function Z_Clock() {
+                if (!Z_Zulu) return;
+                const Z_D = new Date();
+                const Z_P = (Z_N: number) => String(Z_N).padStart(2, "0");
+                Z_Zulu.textContent = `${Z_P(Z_D.getUTCHours())}:${Z_P(Z_D.getUTCMinutes())}:${Z_P(Z_D.getUTCSeconds())}z`;
+            }
+            Z_Clock();
+            window.setInterval(Z_Clock, 1000);
         </script>
     </body>
 </html>
