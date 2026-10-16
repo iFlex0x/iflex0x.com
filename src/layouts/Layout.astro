@@ -1,0 +1,72 @@
+---
+import "../styles/global.css";
+import "@fontsource/atkinson-hyperlegible/400.css";
+import "@fontsource/atkinson-hyperlegible/700.css";
+
+export interface Props {
+    title: string;
+    description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content={Astro.generator} />
+        <meta name="author" content="iFlex0x" />
+        <meta name="description" content={description} />
+        <meta name="theme-color" content="#070707" />
+        <link rel="icon" href="/favicon.png" />
+        <title>{title}</title>
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={Astro.url} />
+        <meta property="og:image" content="https://iflex0x.com/favicon.png" />
+        <meta name="darkreader-lock" />
+        <slot name="head" />
+    </head>
+    <body>
+        <a class="skip" href="#main">Skip to content</a>
+        <slot />
+        <footer>
+            <div class="foot-row">
+                <span>iflex0x</span>
+                <a
+                    href="https://github.com/iFlex0x/iflex0x.com"
+                    rel="noopener noreferrer"
+                >
+                    source
+                </a>
+                <a href="mailto:ad@iflex0x.com">mail</a>
+            </div>
+            <p class="credits">
+                inspired by
+                <a href="https://iamw.ing/" rel="noopener noreferrer">
+                    iamw.ing
+                </a>
+                ,
+                <a href="https://bignut.zip/" rel="noopener noreferrer">
+                    bignut.zip
+                </a>
+                , hugo drawn by
+                <a
+                    href="https://www.instagram.com/neptunicsunset/"
+                    rel="noopener noreferrer"
+                >
+                    neptunicsunset
+                </a>
+                .
+            </p>
+        </footer>
+        <script>
+            document.addEventListener("contextmenu", (Z_E) => {
+                const Z_T = Z_E.target as HTMLElement | null;
+                if (Z_T && Z_T.closest("img, .work")) Z_E.preventDefault();
+            });
+        </script>
+    </body>
+</html>

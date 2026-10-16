@@ -1,0 +1,394 @@
+:root {
+    --Z_Max: 1120px;
+    --Z_Bg: #070707;
+    --Z_Card: #101010;
+    --Z_Ink: #ffffff;
+    --Z_Mute: #9a9a9a;
+    --Z_Line: #1a1a1a;
+    --Z_Accent: #c60000;
+}
+
+body {
+    margin: 0;
+    background-color: var(--Z_Bg);
+    color: var(--Z_Ink);
+    font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+    line-height: 1.6;
+}
+
+.skip {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background-color: var(--Z_Card);
+    color: var(--Z_Ink);
+    padding: 8px 12px;
+    z-index: 100;
+}
+
+.skip:focus-visible {
+    left: 8px;
+    top: 8px;
+    outline: 2px solid var(--Z_Accent);
+    outline-offset: 2px;
+}
+
+.shell {
+    max-width: var(--Z_Max);
+    margin: 0 auto;
+    padding: 96px 24px 0;
+    display: flex;
+    gap: 56px;
+    align-items: flex-start;
+}
+
+.rail {
+    width: 272px;
+    flex-shrink: 0;
+    order: -1;
+    position: sticky;
+    top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.rail img {
+    width: 100%;
+    height: auto;
+}
+
+.content {
+    width: 792px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.card {
+    background-color: var(--Z_Card);
+    border-radius: 20px;
+    padding: 24px;
+}
+
+.card h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.card h2,
+.work-full h2 {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    color: var(--Z_Mute);
+}
+
+.card p {
+    margin: 0;
+    font-size: 15px;
+}
+
+.head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.chip {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background-color: var(--Z_Accent);
+    display: grid;
+    place-items: center;
+    color: var(--Z_Ink);
+}
+
+.chip svg {
+    width: 18px;
+    height: 18px;
+}
+
+.likes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.about {
+    position: relative;
+    background: radial-gradient(at 200% 200%, #f31212 0%, var(--Z_Card) 78%);
+}
+
+.about .head,
+.about .likes {
+    padding-right: 240px; /* clears hugo */
+}
+
+.hugo {
+    position: absolute;
+    right: 8px;
+    bottom: 0;
+    height: 320px;
+    width: auto;
+    -webkit-mask-image: linear-gradient(to top, transparent 0, black 48px);
+    mask-image: linear-gradient(to top, transparent 0, black 48px);
+}
+
+.sig {
+    position: absolute;
+    right: 16px;
+    bottom: 12px;
+    height: 28px;
+    width: auto;
+}
+
+.duo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.rows,
+.freq {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.rows li {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--Z_Line);
+    font-size: 14px;
+}
+
+.rows li:last-child {
+    border-bottom: none;
+}
+
+.freq a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--Z_Line);
+    color: var(--Z_Ink);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.freq li:last-child a {
+    border-bottom: none;
+}
+
+.freq .net {
+    display: flex;
+    align-items: center;
+    color: var(--Z_Ink);
+}
+
+.proj {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    min-width: 0;
+}
+
+.proj .desc {
+    font-size: 13px;
+    color: var(--Z_Mute);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.net svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.work-full {
+    max-width: var(--Z_Max);
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+}
+
+.work-full .head {
+    margin-bottom: 12px;
+}
+
+.work {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 8px;
+}
+
+.work li {
+    overflow: hidden;
+    background-color: var(--Z_Line);
+    border-radius: 10px;
+}
+
+.work .big {
+    grid-column: span 12;
+    aspect-ratio: 16 / 9;
+}
+
+.work .half {
+    grid-column: span 6;
+    aspect-ratio: 4 / 5;
+}
+
+.work img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+a {
+    color: var(--Z_Accent);
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:focus,
+a:focus-visible {
+    outline: 2px solid var(--Z_Accent);
+    outline-offset: 2px;
+}
+
+footer {
+    max-width: var(--Z_Max);
+    margin: 0 auto;
+    padding: 0 24px 48px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.foot-row {
+    display: flex;
+    gap: 16px;
+}
+
+.foot-row a,
+.credits a {
+    color: var(--Z_Mute);
+}
+
+.credits {
+    margin: 0;
+    color: var(--Z_Mute);
+}
+
+@media (max-width: 900px) {
+    .hugo,
+    .sig {
+        display: none;
+    }
+
+    .about .head,
+    .about .likes {
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .shell {
+        flex-direction: column;
+        gap: 32px;
+        padding: 48px 16px 0;
+    }
+
+    .rail {
+        width: 100%;
+        position: static;
+        align-items: center;
+    }
+
+    .rail img {
+        max-width: 240px;
+    }
+
+    .rail .card {
+        padding: 12px 16px;
+    }
+
+    .rail .head {
+        margin-bottom: 8px;
+    }
+
+    .rail .freq a {
+        padding: 6px 0;
+    }
+
+    .content {
+        width: 100%;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    .duo {
+        grid-template-columns: 1fr;
+    }
+
+    .work-full {
+        padding: 24px 16px 48px;
+    }
+
+    .work .half {
+        grid-column: span 12;
+        aspect-ratio: 4 / 5;
+    }
+
+    .rail .freq {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px 20px;
+    }
+
+    .rail .freq a {
+        border-bottom: none;
+        padding: 4px 0;
+    }
+
+    .rail .freq a span:first-child {
+        display: none;
+    }
+
+    .rail .net svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
