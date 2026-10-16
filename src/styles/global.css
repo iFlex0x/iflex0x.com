@@ -1,5 +1,5 @@
 :root {
-    --Z_Max: 1120px; /* shell cap */
+    --Z_Max: 1120px;
     --Z_Bg: #070707;
     --Z_Card: #101010;
     --Z_Ink: #ffffff;
@@ -11,10 +11,46 @@
 
 body {
     margin: 0;
+    position: relative;
     background-color: var(--Z_Bg);
     color: var(--Z_Ink);
     font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
     line-height: 1.6;
+}
+
+html.Z_Light {
+    --Z_Bg: #e4ddcc;
+    --Z_Card: #f1ebdb;
+    --Z_Ink: #1c1813;
+    --Z_Mute: #6f6455;
+    --Z_Line: #d3c9b2;
+    --Z_Accent: #a30000;
+    --Z_Link: #a30000;
+    color-scheme: light;
+}
+
+html.Z_Light .rail img {
+    filter: drop-shadow(0 4px 10px rgba(28, 24, 19, 0.8));
+}
+
+html.Z_Light .chip {
+    color: #ffffff;
+}
+
+body,
+.card,
+.chip,
+.net a,
+.Z_Theme {
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+}
+
+html.Z_Light .Z_Theme {
+    transform: rotate(180deg);
+}
+
+html.Z_Light .sig {
+    filter: brightness(0);
 }
 
 .skip {
@@ -340,6 +376,42 @@ footer {
     color: var(--Z_Mute);
 }
 
+.foot-theme {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.Z_Theme {
+    background: none;
+    border: 1px solid var(--Z_Line);
+    border-radius: 8px;
+    color: var(--Z_Mute);
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+}
+
+.Z_Theme:hover {
+    color: var(--Z_Ink);
+}
+
+.Z_Theme svg {
+    width: 16px;
+    height: 16px;
+}
+
+html:not(.Z_Light) .Z_Sun {
+    display: none;
+}
+
+html.Z_Light .Z_Moon {
+    display: none;
+}
+
 @media (max-width: 900px) {
     .hugo,
     .sig {
@@ -450,6 +522,36 @@ footer {
     gap: 2px;
     min-width: 0;
     overflow: hidden;
+}
+
+.Z_Plane[hidden] {
+    display: none;
+}
+
+.Z_Plane {
+    margin: 16px 0 0;
+}
+
+.Z_Plane > a {
+    display: block;
+}
+
+.Z_Plane img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    background-color: var(--Z_Line);
+}
+
+.Z_Plane figcaption {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--Z_Mute);
+    margin-top: 8px;
 }
 
 #Z_Song {

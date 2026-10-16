@@ -32,8 +32,11 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
 
 <style>
     .Z_Companion {
-        position: fixed;
-        inset: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         z-index: 40;
         overflow: hidden;
         pointer-events: none;
@@ -95,8 +98,8 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
         let Z_Last = performance.now();
 
         window.addEventListener("pointermove", (Z_E) => {
-            Z_Mouse.x = Z_E.clientX;
-            Z_Mouse.y = Z_E.clientY;
+            Z_Mouse.x = Z_E.clientX + window.scrollX;
+            Z_Mouse.y = Z_E.clientY + window.scrollY;
         }, { passive: true });
         Z_Flip.addEventListener("click", () => {
             if (Z_S.hop <= 0) Z_S.hop = 1;
@@ -112,10 +115,12 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
                     Z_GroundBox = Z_El.getBoundingClientRect();
                     Z_GroundAt = performance.now();
                 }
-                return Z_GroundBox.top - Z_Size + 6;
+                return Z_GroundBox.top + window.scrollY - Z_Size + 6;
             }
-            return window.innerHeight - Z_Fallback - Z_Size;
+            return document.body.scrollHeight - Z_Fallback - Z_Size;
         };
+        window.addEventListener("scroll", () => { Z_GroundBox = null; }, { passive: true });
+        window.addEventListener("resize", () => { Z_GroundBox = null; });
 
         const Z_Tick = (Z_Now: number) => {
             const Z_Dt = Math.min(0.05, (Z_Now - Z_Last) / 1000);
@@ -201,7 +206,7 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
 
             if (!Z_Reduced) requestAnimationFrame(Z_Tick);
         };
-        Z_Pos.style.transform = `translate3d(${Z_S.x}px, ${Z_Roam ? Z_S.y : 0}px, 0)`;
+        Z_Pos.style.transform = `translate3d(${Z_S.x}px, ${Z_Roam ? Z_S.y : Z_Ground()}px, 0)`;
         if (!Z_Reduced) requestAnimationFrame(Z_Tick);
     }
 </script>
