@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Z_Companion from "../components/Z_Companion.astro";
 
 interface Z_Repo {
     name: string;
@@ -470,4 +471,5 @@ try {
             </li>
         </ul>
     </section>
+    <Z_Companion mode="patrol" anchorSelector="footer" />
 </Layout>

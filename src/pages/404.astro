@@ -1,11 +1,25 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Z_Companion from "../components/Z_Companion.astro";
+
+const Z_Lines = ["off scope", "squawk 7600", "no such frequency"];
 ---
 
 <Layout title="off scope" description="no such frequency">
-    <main>
-        <h1>off scope</h1>
-        <p>squawk 7600. no such frequency.</p>
-        <p><a href="/">back to home</a></p>
+    <main class="Z_Room">
+        <section class="card" aria-labelledby="lost-heading">
+            <div class="head">
+                <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></svg></span>
+                <h1 id="lost-heading">off scope</h1>
+            </div>
+            <p>squawk 7600. no such frequency.</p>
+            <p><a href="/">back to home</a></p>
+        </section>
     </main>
+    <Z_Companion mode="roam" />
+
+    <script define:vars={{ Z_Lines }}>
+        const Z_H = document.getElementById("lost-heading");
+        if (Z_H) Z_H.textContent = Z_Lines[Math.floor(Math.random() * Z_Lines.length)];
+    </script>
 </Layout>
