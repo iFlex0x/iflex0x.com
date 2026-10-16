@@ -529,7 +529,15 @@ html.Z_Light .Z_Moon {
 }
 
 .Z_Plane {
-    margin: 16px 0 0;
+    margin: 20px 0 0;
+    padding-top: 20px;
+    border-top: 2px solid var(--Z_Line);
+}
+
+.Z_PlaneHead {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: var(--Z_Mute);
 }
 
 .Z_Plane > a {
@@ -538,8 +546,7 @@ html.Z_Light .Z_Moon {
 
 .Z_Plane img {
     width: 100%;
-    aspect-ratio: 3 / 2;
-    object-fit: cover;
+    height: auto;
     border-radius: 10px;
     display: block;
     background-color: var(--Z_Line);
