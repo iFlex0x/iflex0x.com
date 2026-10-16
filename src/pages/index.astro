@@ -216,6 +216,7 @@ try {
                     piper pa28, Extra E330 on the network.
                 </p>
                 <figure class="Z_Plane" id="Z_PlaneFig" hidden>
+                    <p class="Z_PlaneHead">plane of the day</p>
                     <a id="Z_PlaneLink" rel="noopener noreferrer">
                         <img
                             id="Z_PlaneArt"
@@ -627,39 +628,73 @@ try {
             live?: boolean;
         }
 
-        interface Z_PlaneJson {
-            flight?: string;
-            hex?: string;
-            op?: string;
-        }
-
         async function Z_Plane() {
             try {
-                const Z_R = await fetch("/api/plane");
-                if (!Z_R.ok) return;
-                const Z_P = (await Z_R.json()) as Z_PlaneJson;
-                if (!Z_P?.hex) return;
                 const Z_Fig = document.getElementById("Z_PlaneFig");
                 const Z_Img = document.getElementById("Z_PlaneArt") as HTMLImageElement | null;
                 const Z_Info = document.getElementById("Z_PlaneInfo");
                 const Z_By = document.getElementById("Z_PlaneBy") as HTMLAnchorElement | null;
                 const Z_Link = document.getElementById("Z_PlaneLink") as HTMLAnchorElement | null;
                 if (!Z_Fig || !Z_Img || !Z_Info || !Z_By || !Z_Link) return;
-                Z_Info.textContent = [Z_P.flight, Z_P.op].filter(Boolean).join(" / ");
-                const Z_Pr = await fetch(`https://api.planespotters.net/pub/photos/hex/${Z_P.hex}`);
-                if (!Z_Pr.ok) return;
-                const Z_Ph = ((await Z_Pr.json()) as any)?.photos?.[0];
-                const Z_Src = Z_Ph?.thumbnail_large?.src ?? Z_Ph?.thumbnail?.src;
-                if (!Z_Src) return;
-                Z_Img.src = Z_Src;
-                Z_Img.alt = `${Z_P.flight} ${Z_P.op}`.trim();
-                if (Z_Ph.link) Z_Link.href = Z_Ph.link;
-                if (Z_Ph.photographer && Z_Ph.link) {
-                    Z_By.textContent = `photo: ${Z_Ph.photographer}`;
-                    Z_By.href = Z_Ph.link;
+                let Z_Reg = "";
+                let Z_Day = "";
+                try {
+                    const Z_R = await fetch("/api/plane");
+                    if (!Z_R.ok) return;
+                    const Z_P = (await Z_R.json()) as any;
+                    Z_Reg = Z_P?.reg ?? "";
+                    Z_Day = Z_P?.day ?? "";
+                    if (!Z_Reg || !Z_Day) return;
+                } catch {
+                    return;
                 }
-                Z_Fig.hidden = false;
+                try {
+                    const Z_Old = JSON.parse(localStorage.getItem("Z_Plane") ?? "null") as any;
+                    if (Z_Old?.day === Z_Day && Z_Old?.src) {
+                        Z_PlaneShow(Z_Old.info, Z_Old.src, Z_Old.alt, Z_Old.link, Z_Old.by);
+                        return;
+                    }
+                } catch {  }
+                let Z_Pages: any[] = [];
+                try {
+                    const Z_Q = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(Z_Reg)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=1280&format=json&origin=*`;
+                    const Z_Cr = await fetch(Z_Q);
+                    if (!Z_Cr.ok) return;
+                    Z_Pages = Object.values(((await Z_Cr.json()) as any)?.query?.pages ?? {});
+                } catch {
+                    return;
+                }
+                const Z_Found = Z_Pages.find((Z_Pg: any) => (Z_Pg?.title ?? "").toUpperCase().includes(Z_Reg) && (Z_Pg?.imageinfo?.[0]?.width ?? 0) >= 800) ?? Z_Pages[0];
+                const Z_Info0 = Z_Found?.imageinfo?.[0];
+                const Z_Src = Z_Info0?.thumburl ?? Z_Info0?.url;
+                if (!Z_Src) return;
+                const Z_RawBy = Z_Info0?.extmetadata?.Artist?.value ?? "";
+                const Z_ByV = Z_RawBy.replace(/<[^>]*>/g, "").trim() || "Wikimedia Commons";
+                const Z_Href = Z_Info0?.descriptionurl ?? "";
+                const Z_InfoV = [Z_Reg, (Z_Found?.title ?? "").replace(/^File:/, "").replace(/\.[a-z]+$/i, "")].filter(Boolean).join(" / ");
+                Z_PlaneShow(Z_InfoV, Z_Src, Z_InfoV, Z_Href, Z_ByV);
+                try {
+                    localStorage.setItem("Z_Plane", JSON.stringify({ day: Z_Day, info: Z_InfoV, src: Z_Src, alt: Z_InfoV, link: Z_Href, by: Z_ByV }));
+                } catch {  }
             } catch {  }
+        }
+
+        function Z_PlaneShow(Z_InfoV: string, Z_Src: string, Z_Alt: string, Z_Href: string, Z_ByV: string) {
+            const Z_Fig = document.getElementById("Z_PlaneFig");
+            const Z_Img = document.getElementById("Z_PlaneArt") as HTMLImageElement | null;
+            const Z_Info = document.getElementById("Z_PlaneInfo");
+            const Z_By = document.getElementById("Z_PlaneBy") as HTMLAnchorElement | null;
+            const Z_Link = document.getElementById("Z_PlaneLink") as HTMLAnchorElement | null;
+            if (!Z_Fig || !Z_Img || !Z_Info || !Z_By || !Z_Link) return;
+            Z_Info.textContent = Z_InfoV;
+            Z_Img.src = Z_Src;
+            Z_Img.alt = Z_Alt;
+            if (Z_Href) Z_Link.href = Z_Href;
+            if (Z_ByV && Z_Href) {
+                Z_By.textContent = `photo: ${Z_ByV}`;
+                Z_By.href = Z_Href;
+            }
+            Z_Fig.hidden = false;
         }
 
         async function Z_Poll() {
