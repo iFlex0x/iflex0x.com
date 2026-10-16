@@ -2,17 +2,17 @@
 import Layout from "../layouts/Layout.astro";
 import Z_Companion from "../components/Z_Companion.astro";
 
-const Z_Lines = ["off scope", "squawk 7600", "no such frequency"];
+const Z_Lines = ["off scope", "squawk 7600"];
 ---
 
-<Layout title="off scope" description="no such frequency">
+<Layout title="off scope" description="squawk 7600">
     <main class="Z_Room">
         <section class="card" aria-labelledby="lost-heading">
             <div class="head">
                 <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></svg></span>
                 <h1 id="lost-heading">off scope</h1>
             </div>
-            <p>squawk 7600. no such frequency.</p>
+            <p>squawk 7600.</p>
             <p><a href="/">back to home</a></p>
         </section>
     </main>
