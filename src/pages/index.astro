@@ -177,8 +177,6 @@ try {
                         <h2 id="listening-heading">listening</h2>
                     </div>
                     <figure class="Z_Banner" id="Z_Banner" hidden>
-                        <img id="Z_Art" width="640" height="320" alt="" draggable="false" />
-                        <span class="Z_Shade" aria-hidden="true"></span>
                         <figcaption>
                             <a id="Z_Song" rel="noopener noreferrer"></a>
                             <a id="Z_Artist" rel="noopener noreferrer"></a>
@@ -497,7 +495,6 @@ try {
     <script>
         const Z_Banner = document.getElementById("Z_Banner");
         const Z_Head = document.getElementById("listening-heading");
-        const Z_Art = document.getElementById("Z_Art") as HTMLImageElement | null;
         const Z_Song = document.getElementById("Z_Song") as HTMLAnchorElement | null;
         const Z_Artist = document.getElementById("Z_Artist") as HTMLAnchorElement | null;
         const Z_Key = "Z_LastSong";
@@ -548,18 +545,18 @@ try {
             });
         }
 
+        const Z_ShadeV = "linear-gradient(to top, rgba(7, 7, 7, 0.94) 0%, rgba(7, 7, 7, 0.45) 45%, rgba(7, 7, 7, 0) 80%)";
+
         function Z_Show(Z_SongV: string, Z_ArtistV: string, Z_ArtV: string, Z_TrackV: string, Z_StateV: string) {
-            if (!Z_Banner || !Z_Head || !Z_Art || !Z_Song || !Z_Artist) return;
+            if (!Z_Banner || !Z_Head || !Z_Song || !Z_Artist) return;
             Z_Head.textContent = Z_StateV;
             if (Z_TrackV === Z_Current) return;
             Z_Current = Z_TrackV;
-            Z_Art.style.opacity = "0";
             const Z_Pre = new Image();
             Z_Pre.decoding = "async";
-            Z_Pre.onload = () => {
-                Z_Art.src = Z_ArtV;
-                Z_Art.alt = `${Z_SongV} by ${Z_ArtistV}`;
-                Z_Art.style.opacity = "1";
+            const Z_Paint = () => {
+                Z_Banner.style.backgroundImage = `${Z_ShadeV}, url("${Z_ArtV}")`;
+                Z_Banner.setAttribute("aria-label", `${Z_SongV} by ${Z_ArtistV}`);
                 Z_Decode(Z_Song, Z_SongV);
                 Z_Decode(Z_Artist, Z_ArtistV);
                 const Z_Url = `https://open.spotify.com/track/${Z_TrackV}`;
@@ -567,17 +564,8 @@ try {
                 Z_Artist.href = Z_Url;
                 Z_Reveal();
             };
-            Z_Pre.onerror = () => {
-                Z_Art.src = Z_ArtV;
-                Z_Art.alt = `${Z_SongV} by ${Z_ArtistV}`;
-                Z_Art.style.opacity = "1";
-                Z_Decode(Z_Song, Z_SongV);
-                Z_Decode(Z_Artist, Z_ArtistV);
-                const Z_Url = `https://open.spotify.com/track/${Z_TrackV}`;
-                Z_Song.href = Z_Url;
-                Z_Artist.href = Z_Url;
-                Z_Reveal();
-            };
+            Z_Pre.onload = Z_Paint;
+            Z_Pre.onerror = Z_Paint;
             Z_Pre.src = Z_ArtV;
         }
 
