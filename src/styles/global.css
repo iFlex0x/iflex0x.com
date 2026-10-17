@@ -100,6 +100,7 @@ html.Z_Light .sig {
 
 .content {
     width: 792px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 32px;
@@ -415,19 +416,13 @@ html.Z_Light .Z_Moon {
     display: none;
 }
 
-@media (max-width: 900px) {
-    .hugo,
-    .sig {
-        display: none;
-    }
-
-    .about .head,
-    .about .likes {
-        padding-right: 0;
+@media (max-width: 1180px) {
+    .shell {
+        gap: 40px;
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 860px) {
     .shell {
         flex-direction: column;
         gap: 32px;
@@ -452,8 +447,24 @@ html.Z_Light .Z_Moon {
         margin-bottom: 8px;
     }
 
+    .rail .freq {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px 20px;
+    }
+
     .rail .freq a {
-        padding: 6px 0;
+        border-bottom: none;
+        padding: 4px 0;
+    }
+
+    .rail .freq a span:first-child {
+        display: none;
+    }
+
+    .rail .net svg {
+        width: 20px;
+        height: 20px;
     }
 
     .content {
@@ -462,6 +473,33 @@ html.Z_Light .Z_Moon {
 
     .card {
         padding: 16px;
+    }
+}
+
+@media (max-width: 900px) {
+    .hugo,
+    .sig {
+        display: none;
+    }
+
+    .about .head,
+    .about .likes {
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .duo {
+        grid-template-columns: 1fr;
+    }
+
+    .work-full {
+        padding: 24px 16px 48px;
+    }
+
+    .work .half {
+        grid-column: span 12;
+        aspect-ratio: 4 / 5;
     }
 }
 
@@ -563,41 +601,6 @@ html.Z_Light .Z_Moon {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-@media (max-width: 700px) {
-    .duo {
-        grid-template-columns: 1fr;
-    }
-
-    .work-full {
-        padding: 24px 16px 48px;
-    }
-
-    .work .half {
-        grid-column: span 12;
-        aspect-ratio: 4 / 5;
-    }
-
-    .rail .freq {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 4px 20px;
-    }
-
-    .rail .freq a {
-        border-bottom: none;
-        padding: 4px 0;
-    }
-
-    .rail .freq a span:first-child {
-        display: none;
-    }
-
-    .rail .net svg {
-        width: 20px;
-        height: 20px;
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {
