@@ -79,17 +79,33 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
         const Z_Sprite = Z_Root.querySelector(".Z_Sprite") as HTMLImageElement;
         const Z_Size = 56;
         const Z_Flee = 130;
+        const Z_Spawn = 240;
+        const Z_Dash = 260;
+        const Z_DashHold = 400;
+        const Z_Walk = 50;
+        const Z_WalkRand = 30;
+        const Z_MoveHold = 1500;
+        const Z_MoveRand = 2500;
+        const Z_RestHold = 2000;
+        const Z_RestRand = 3000;
+        const Z_DtMax = 0.05;
+        const Z_HopDrop = 2.2;
+        const Z_HopHigh = 34;
+        const Z_FpsWalk = 8;
+        const Z_FpsDash = 14;
+        const Z_CacheMs = 2000;
+        const Z_Gap = 6;
         const Z_Reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
         const Z_S = {
-            x: Math.min(240, Math.max(0, window.innerWidth - Z_Size)),
+            x: Math.min(Z_Spawn, Math.max(0, window.innerWidth - Z_Size)),
             y: Z_Roam ? window.innerHeight * 0.5 : 0,
             dirX: 1 as 1 | -1,
             dirY: 0,
             moving: false,
             fast: false,
             speed: 0,
-            until: performance.now() + 1500,
+            until: performance.now() + Z_MoveHold,
             hop: 0,
             frame: 0,
             frameT: 0,
@@ -97,10 +113,14 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
         const Z_Mouse = { x: -9999, y: -9999 };
         let Z_Last = performance.now();
 
-        window.addEventListener("pointermove", (Z_E) => {
-            Z_Mouse.x = Z_E.clientX + window.scrollX;
-            Z_Mouse.y = Z_E.clientY + window.scrollY;
-        }, { passive: true });
+        window.addEventListener(
+            "pointermove",
+            (Z_E) => {
+                Z_Mouse.x = Z_E.clientX + window.scrollX;
+                Z_Mouse.y = Z_E.clientY + window.scrollY;
+            },
+            { passive: true },
+        );
         Z_Flip.addEventListener("click", () => {
             if (Z_S.hop <= 0) Z_S.hop = 1;
         });
@@ -111,19 +131,27 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
         const Z_Ground = () => {
             const Z_El = Z_Anchor ? document.querySelector(Z_Anchor) : null;
             if (Z_El) {
-                if (!Z_GroundBox || performance.now() - Z_GroundAt > 2000) {
+                if (!Z_GroundBox || performance.now() - Z_GroundAt > Z_CacheMs) {
                     Z_GroundBox = Z_El.getBoundingClientRect();
                     Z_GroundAt = performance.now();
                 }
-                return Z_GroundBox.top + window.scrollY - Z_Size + 6;
+                return Z_GroundBox.top + window.scrollY - Z_Size + Z_Gap;
             }
             return document.body.scrollHeight - Z_Fallback - Z_Size;
         };
-        window.addEventListener("scroll", () => { Z_GroundBox = null; }, { passive: true });
-        window.addEventListener("resize", () => { Z_GroundBox = null; });
+        window.addEventListener(
+            "scroll",
+            () => {
+                Z_GroundBox = null;
+            },
+            { passive: true },
+        );
+        window.addEventListener("resize", () => {
+            Z_GroundBox = null;
+        });
 
         const Z_Tick = (Z_Now: number) => {
-            const Z_Dt = Math.min(0.05, (Z_Now - Z_Last) / 1000);
+            const Z_Dt = Math.min(Z_DtMax, (Z_Now - Z_Last) / 1000);
             Z_Last = Z_Now;
             if (document.hidden) {
                 requestAnimationFrame(Z_Tick);
@@ -143,16 +171,16 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
             if (!Z_Reduced && Z_Dist < Z_Flee) {
                 Z_S.moving = true;
                 Z_S.fast = true;
-                Z_S.speed = 260;
-                Z_S.until = Z_Now + 400;
+                Z_S.speed = Z_Dash;
+                Z_S.until = Z_Now + Z_DashHold;
                 Z_S.dirX = Z_Dx >= 0 ? 1 : -1;
                 if (Z_Roam) Z_S.dirY = Z_Dy / (Z_Dist || 1);
             } else if (Z_Now > Z_S.until) {
                 if (Z_Reduced || !Z_S.moving) {
                     Z_S.moving = Z_Reduced ? false : !Z_S.moving;
                     Z_S.fast = false;
-                    Z_S.speed = Z_S.moving ? 50 + Math.random() * 30 : 0;
-                    Z_S.until = Z_Now + 1500 + Math.random() * 2500;
+                    Z_S.speed = Z_S.moving ? Z_Walk + Math.random() * Z_WalkRand : 0;
+                    Z_S.until = Z_Now + Z_MoveHold + Math.random() * Z_MoveRand;
                     if (Z_S.moving) {
                         if (Z_Roam) {
                             const Z_A = Math.random() * Math.PI * 2;
@@ -165,7 +193,7 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
                 } else {
                     Z_S.moving = false;
                     Z_S.speed = 0;
-                    Z_S.until = Z_Now + 2000 + Math.random() * 3000;
+                    Z_S.until = Z_Now + Z_RestHold + Math.random() * Z_RestRand;
                 }
             }
 
@@ -185,7 +213,7 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
             }
 
             if (Z_S.moving && Z_S.speed > 0) {
-                Z_S.frameT += Z_Dt * (Z_S.fast ? 14 : 8);
+                Z_S.frameT += Z_Dt * (Z_S.fast ? Z_FpsDash : Z_FpsWalk);
                 if (Z_S.frameT >= 1) {
                     Z_S.frameT = 0;
                     Z_S.frame = (Z_S.frame + 1) % 4;
@@ -196,13 +224,13 @@ const { mode = "patrol", anchorSelector = "footer", fallbackBottom = 48 } = Astr
 
             let Z_Y = Z_Roam ? Z_S.y : Z_Base;
             if (Z_S.hop > 0) {
-                Z_S.hop = Math.max(0, Z_S.hop - Z_Dt * 2.2);
-                Z_Y -= Math.sin((1 - Z_S.hop) * Math.PI) * 34;
+                Z_S.hop = Math.max(0, Z_S.hop - Z_Dt * Z_HopDrop);
+                Z_Y -= Math.sin((1 - Z_S.hop) * Math.PI) * Z_HopHigh;
             }
 
             Z_Pos.style.transform = `translate3d(${Z_S.x}px, ${Z_Y}px, 0)`;
             Z_Flip.style.transform = `scaleX(${Z_S.dirX})`;
-            Z_Sprite.style.objectPosition = `${-Z_S.frame * 56}px 0`;
+            Z_Sprite.style.objectPosition = `${-Z_S.frame * Z_Size}px 0`;
 
             if (!Z_Reduced) requestAnimationFrame(Z_Tick);
         };

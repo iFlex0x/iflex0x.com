@@ -11,12 +11,13 @@ interface Z_Repo {
 }
 
 const Z_N = 3;
-const Z_Url =
-    "https://api.github.com/users/iFlex0x/repos?sort=pushed&per_page=10";
+const Z_Url = "https://api.github.com/users/iFlex0x/repos?sort=pushed&per_page=10";
+const Z_Token = import.meta.env.GITHUB_TOKEN;
 const Z_Init = {
     headers: {
         "User-Agent": "iflex0x.com",
         Accept: "application/vnd.github.v3+json",
+        ...(Z_Token ? { Authorization: `Bearer ${Z_Token}` } : {}),
     },
 };
 
@@ -29,16 +30,12 @@ try {
     if (Z_Res.ok) {
         const Z_Raw = (await Z_Res.json()) as unknown;
         const Z_All = Array.isArray(Z_Raw) ? (Z_Raw as Z_Repo[]) : [];
-        Z_Projects = Z_All.filter((Z_R) => !Z_R.fork && !Z_R.archived).slice(
-            0,
-            Z_N,
-        );
+        Z_Projects = Z_All.filter((Z_R) => !Z_R.fork && !Z_R.archived).slice(0, Z_N);
     } else {
         console.warn(`projects: github -> ${Z_Res.status} ${Z_Res.statusText}`);
     }
 } catch (Z_E) {
     console.warn("projects: fetch failed", Z_E);
-    Z_Projects = [];
 }
 ---
 
@@ -51,7 +48,9 @@ try {
             <section class="card about" aria-labelledby="about-heading">
                 <div class="head">
                     <span class="chip">
-                        <svg aria-hidden="true" focusable="false"
+                        <svg
+                            aria-hidden="true"
+                            focusable="false"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -75,7 +74,8 @@ try {
                 </ul>
                 <img
                     class="hugo"
-                    src="https://media.iflex0x.com/hugo.png" data-fallback="/hugo.png"
+                    src="https://media.iflex0x.com/hugo.png"
+                    data-fallback="/hugo.png"
                     alt="Hugo"
                     width="244"
                     height="320"
@@ -85,7 +85,8 @@ try {
                 />
                 <img
                     class="sig"
-                    src="https://media.iflex0x.com/signature.png" data-fallback="/signature.png"
+                    src="https://media.iflex0x.com/signature.png"
+                    data-fallback="/signature.png"
                     alt="artist signature"
                     width="120"
                     height="56"
@@ -118,25 +119,25 @@ try {
                     <h2 id="zouna-heading">the zouna engine,</h2>
                 </div>
                 <p>
-                    I'm getting into game reverse engineering and my current
-                    target is the
+                    I'm getting into game reverse engineering and my current target is the
                     <a
                         href="https://github.com/widberg/fmtk/wiki/Zouna-Modding-Resources"
                         rel="noopener noreferrer"
                     >
                         Zouna engine
                     </a>
-                    which might not have been the best idea as its the hardest
-                    engine i coulda picked to start. it's behind a lot of
-                    amazing games one of them is my favorite series A Plague
-                    Tale.
+                    which might not have been the best idea as its the hardest engine i coulda
+                    picked to start. it's behind a lot of amazing games one of them is my favorite
+                    series A Plague Tale.
                 </p>
             </section>
             <div class="duo">
                 <section class="card" aria-labelledby="setup-heading">
                     <div class="head">
                         <span class="chip">
-                            <svg aria-hidden="true" focusable="false"
+                            <svg
+                                aria-hidden="true"
+                                focusable="false"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -144,8 +145,8 @@ try {
                                 stroke-linecap="round"
                             >
                                 <path d="M4 8h16M4 16h16" />
-                                <circle cx="9" cy="8" r="2" fill="#c60000" />
-                                <circle cx="15" cy="16" r="2" fill="#c60000" />
+                                <circle cx="9" cy="8" r="2" style="fill: var(--Z_Accent)" />
+                                <circle cx="15" cy="16" r="2" style="fill: var(--Z_Accent)" />
                             </svg>
                         </span>
                         <h2 id="setup-heading">setup</h2>
@@ -162,7 +163,9 @@ try {
                 <section class="card" id="Z_Listen" aria-labelledby="listening-heading">
                     <div class="head">
                         <span class="chip">
-                            <svg aria-hidden="true" focusable="false"
+                            <svg
+                                aria-hidden="true"
+                                focusable="false"
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
@@ -187,7 +190,9 @@ try {
             <section class="card" aria-labelledby="sim-heading">
                 <div class="head">
                     <span class="chip">
-                        <svg aria-hidden="true" focusable="false"
+                        <svg
+                            aria-hidden="true"
+                            focusable="false"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -203,15 +208,11 @@ try {
                     <h2 id="sim-heading">aviation</h2>
                 </div>
                 <p>
-                    <a
-                        href="https://vatsim.net/docs/about/about-vatsim"
-                        rel="noopener noreferrer"
-                    >
+                    <a href="https://vatsim.net/docs/about/about-vatsim" rel="noopener noreferrer">
                         VATSIM
                     </a>
-                     pilot and tower trainee for copenhagen kastrup (EKCH), i
-                    fly the a320, a350, a380, and 777-300er / 777f , md-11,
-                    piper pa28, Extra E330 on the network.
+                    pilot and tower trainee for copenhagen kastrup (EKCH), i fly the a320, a350,
+                    a380, and 777-300er / 777f , md-11, piper pa28, Extra E330 on the network.
                 </p>
                 <figure class="Z_Plane" id="Z_PlaneFig" hidden>
                     <p class="Z_PlaneHead">plane of the day</p>
@@ -235,7 +236,9 @@ try {
             <section class="card" aria-labelledby="projects-heading">
                 <div class="head">
                     <span class="chip">
-                        <svg aria-hidden="true" focusable="false"
+                        <svg
+                            aria-hidden="true"
+                            focusable="false"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -257,12 +260,11 @@ try {
                                         {Z_R.name}
                                         {Z_R.archived ? " (archived)" : ""}
                                     </span>
-                                    <span class="desc">
-                                        {Z_R.description ?? ""}
-                                    </span>
+                                    <span class="desc">{Z_R.description ?? ""}</span>
                                 </span>
                                 <span class="net">
-                                    <svg role="img"
+                                    <svg
+                                        role="img"
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="currentColor"
@@ -279,18 +281,15 @@ try {
                         </li>
                     ))}
                 </ul>
-                <a
-                    class="more"
-                    href="https://github.com/iFlex0x"
-                    rel="noopener noreferrer"
-                >
+                <a class="more" href="https://github.com/iFlex0x" rel="noopener noreferrer">
                     more on my github
                 </a>
             </section>
         </main>
         <aside class="rail">
             <img
-                src="https://media.iflex0x.com/logo.png" data-fallback="/logo.png"
+                src="https://media.iflex0x.com/logo.png"
+                data-fallback="/logo.png"
                 alt="iFlex"
                 fetchpriority="high"
                 width="272"
@@ -300,7 +299,9 @@ try {
             <section class="card" aria-labelledby="freq-heading">
                 <div class="head">
                     <span class="chip">
-                        <svg aria-hidden="true" focusable="false"
+                        <svg
+                            aria-hidden="true"
+                            focusable="false"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -315,17 +316,10 @@ try {
                 </div>
                 <ul class="freq">
                     <li>
-                        <a
-                            href="https://x.com/iFlex0x"
-                            rel="noopener noreferrer"
-                        >
+                        <a href="https://x.com/iFlex0x" rel="noopener noreferrer">
                             <span>@iFlex0x</span>
                             <span class="net">
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    role="img"
-                                >
+                                <svg viewBox="0 0 24 24" fill="currentColor" role="img">
                                     <title>X</title>
                                     <path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z" />
                                 </svg>
@@ -333,17 +327,10 @@ try {
                         </a>
                     </li>
                     <li>
-                        <a
-                            href="https://www.youtube.com/@iFlex0x"
-                            rel="noopener noreferrer"
-                        >
+                        <a href="https://www.youtube.com/@iFlex0x" rel="noopener noreferrer">
                             <span>@iFlex0x</span>
                             <span class="net">
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    role="img"
-                                >
+                                <svg viewBox="0 0 24 24" fill="currentColor" role="img">
                                     <title>YouTube</title>
                                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                                 </svg>
@@ -351,17 +338,10 @@ try {
                         </a>
                     </li>
                     <li>
-                        <a
-                            href="https://www.instagram.com/iflex0x/"
-                            rel="noopener noreferrer"
-                        >
+                        <a href="https://www.instagram.com/iflex0x/" rel="noopener noreferrer">
                             <span>@iflex0x</span>
                             <span class="net">
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    role="img"
-                                >
+                                <svg viewBox="0 0 24 24" fill="currentColor" role="img">
                                     <title>Instagram</title>
                                     <path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077" />
                                 </svg>
@@ -369,17 +349,10 @@ try {
                         </a>
                     </li>
                     <li>
-                        <a
-                            href="https://github.com/iFlex0x"
-                            rel="noopener noreferrer"
-                        >
+                        <a href="https://github.com/iFlex0x" rel="noopener noreferrer">
                             <span>iFlex0x</span>
                             <span class="net">
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    role="img"
-                                >
+                                <svg viewBox="0 0 24 24" fill="currentColor" role="img">
                                     <title>GitHub</title>
                                     <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
                                 </svg>
@@ -393,11 +366,7 @@ try {
                         >
                             <span>@iflex0x</span>
                             <span class="net">
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    role="img"
-                                >
+                                <svg viewBox="0 0 24 24" fill="currentColor" role="img">
                                     <title>Discord</title>
                                     <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
                                 </svg>
@@ -405,17 +374,10 @@ try {
                         </a>
                     </li>
                     <li>
-                        <a
-                            href="https://www.paypal.com/paypalme/iflex8"
-                            rel="noopener noreferrer"
-                        >
+                        <a href="https://www.paypal.com/paypalme/iflex8" rel="noopener noreferrer">
                             <span>support is highly appreciated &lt;3</span>
                             <span class="net">
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    role="img"
-                                >
+                                <svg viewBox="0 0 24 24" fill="currentColor" role="img">
                                     <title>PayPal</title>
                                     <path d="M15.607 4.653H8.941L6.645 19.251H1.82L4.862 0h7.995c3.754 0 6.375 2.294 6.473 5.513-.648-.478-2.105-.86-3.722-.86m6.57 5.546c0 3.41-3.01 6.853-6.958 6.853h-2.493L11.595 24H6.74l1.845-11.538h3.592c4.208 0 7.346-3.634 7.153-6.949a5.24 5.24 0 0 1 2.848 4.686M9.653 5.546h6.408c.907 0 1.942.222 2.363.541-.195 2.741-2.655 5.483-6.441 5.483H8.714Z" />
                                 </svg>
@@ -429,7 +391,9 @@ try {
     <section class="work-full" aria-labelledby="work-heading">
         <div class="head">
             <span class="chip">
-                <svg aria-hidden="true" focusable="false"
+                <svg
+                    aria-hidden="true"
+                    focusable="false"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -446,7 +410,8 @@ try {
         <ul class="work">
             <li class="big">
                 <img
-                    src="https://media.iflex0x.com/work/therac.jpg" data-fallback="/work/therac.jpg"
+                    src="https://media.iflex0x.com/work/therac.jpg"
+                    data-fallback="/work/therac.jpg"
                     width="1600"
                     height="900"
                     alt="thumbnail about the therac-25 machine, text reads it lied"
@@ -457,7 +422,8 @@ try {
             </li>
             <li class="half">
                 <img
-                    src="https://media.iflex0x.com/work/fierce.jpg" data-fallback="/work/fierce.jpg"
+                    src="https://media.iflex0x.com/work/fierce.jpg"
+                    data-fallback="/work/fierce.jpg"
                     width="1000"
                     height="1250"
                     alt="poster of the main character of resonance, a plague tale legacy"
@@ -468,7 +434,8 @@ try {
             </li>
             <li class="half">
                 <img
-                    src="https://media.iflex0x.com/work/shelby.jpg" data-fallback="/work/shelby.jpg"
+                    src="https://media.iflex0x.com/work/shelby.jpg"
+                    data-fallback="/work/shelby.jpg"
                     width="1000"
                     height="1250"
                     alt="ROG rivals gameday poster for shelby"
@@ -479,7 +446,8 @@ try {
             </li>
             <li class="big">
                 <img
-                    src="https://media.iflex0x.com/work/hour47.jpg" data-fallback="/work/hour47.jpg"
+                    src="https://media.iflex0x.com/work/hour47.jpg"
+                    data-fallback="/work/hour47.jpg"
                     width="1600"
                     height="900"
                     alt="thumbnail about editing until i learn vfx"
@@ -498,6 +466,72 @@ try {
         const Z_Song = document.getElementById("Z_Song") as HTMLAnchorElement | null;
         const Z_Artist = document.getElementById("Z_Artist") as HTMLAnchorElement | null;
         const Z_Key = "Z_LastSong";
+
+        interface Z_TrackJson {
+            song?: string;
+            artist?: string;
+            art?: string;
+            id?: string;
+            t?: number;
+            live?: boolean;
+        }
+
+        interface Z_Lanyard {
+            listening_to_spotify?: boolean;
+            spotify?: {
+                song?: string;
+                artist?: string;
+                album_art_url?: string;
+                track_id?: string;
+            };
+        }
+
+        interface Z_WsMsg {
+            op?: number;
+            t?: string;
+            d?: { heartbeat_interval?: number };
+        }
+
+        interface Z_PlaneStored {
+            day?: string;
+            info?: string;
+            src?: string;
+            alt?: string;
+            link?: string;
+            by?: string;
+        }
+
+        interface Z_CommonsInfo {
+            thumburl?: string;
+            url?: string;
+            descriptionurl?: string;
+            extmetadata?: {
+                Artist?: { value?: string };
+                LicenseShortName?: { value?: string };
+            };
+        }
+
+        interface Z_CommonsPage {
+            imageinfo?: Z_CommonsInfo[];
+        }
+
+        interface Z_Commons {
+            query?: { pages?: Record<string, Z_CommonsPage> };
+        }
+
+        function Z_Read<T>(Z_StoreKey: string) {
+            try {
+                return JSON.parse(localStorage.getItem(Z_StoreKey) ?? "null") as T | null;
+            } catch {
+                return null;
+            }
+        }
+
+        function Z_Write(Z_StoreKey: string, Z_Val: unknown) {
+            try {
+                localStorage.setItem(Z_StoreKey, JSON.stringify(Z_Val));
+            } catch {}
+        }
 
         function Z_Ago(Z_T: number) {
             const Z_M = Math.floor((Date.now() - Z_T) / 60000);
@@ -545,9 +579,16 @@ try {
             });
         }
 
-        const Z_ShadeV = "linear-gradient(to top, rgba(7, 7, 7, 0.94) 0%, rgba(7, 7, 7, 0.45) 45%, rgba(7, 7, 7, 0) 80%)";
+        const Z_ShadeV =
+            "linear-gradient(to top, rgba(7, 7, 7, 0.94) 0%, rgba(7, 7, 7, 0.45) 45%, rgba(7, 7, 7, 0) 80%)";
 
-        function Z_Show(Z_SongV: string, Z_ArtistV: string, Z_ArtV: string, Z_TrackV: string, Z_StateV: string) {
+        function Z_Show(
+            Z_SongV: string,
+            Z_ArtistV: string,
+            Z_ArtV: string,
+            Z_TrackV: string,
+            Z_StateV: string,
+        ) {
             if (!Z_Banner || !Z_Head || !Z_Song || !Z_Artist) return;
             Z_Head.textContent = Z_StateV;
             if (Z_TrackV === Z_Current) return;
@@ -573,48 +614,61 @@ try {
 
         function Z_Tick() {
             if (Z_Live || document.hidden) return;
-            let Z_Last = null;
-            try {
-                Z_Last = JSON.parse(localStorage.getItem(Z_Key) ?? "null");
-            } catch {  }
-            if (Z_Last && Z_Head) Z_Head.textContent = "listened " + Z_Ago(Z_Last.t);
+            const Z_Last = Z_Read<Z_TrackJson>(Z_Key);
+            if (Z_Last && Z_Head) Z_Head.textContent = "listened " + Z_Ago(Z_Last.t ?? 0);
         }
 
-        function Z_Render(Z_Data: any) {
+        function Z_Render(Z_Data: Z_Lanyard | undefined) {
             const Z_Sp = Z_Data?.spotify;
             if (Z_Data?.listening_to_spotify && Z_Sp) {
                 const Z_Track = {
-                    song: Z_Sp.song as string,
-                    artist: Z_Sp.artist as string,
-                    art: Z_Sp.album_art_url as string,
-                    id: Z_Sp.track_id as string,
+                    song: Z_Sp.song ?? "",
+                    artist: Z_Sp.artist ?? "",
+                    art: Z_Sp.album_art_url ?? "",
+                    id: Z_Sp.track_id ?? "",
                     t: Date.now(),
                 };
-                try {
-                    localStorage.setItem(Z_Key, JSON.stringify(Z_Track));
-                } catch {  }
+                Z_Write(Z_Key, Z_Track);
                 Z_Live = true;
                 Z_Show(Z_Track.song, Z_Track.artist, Z_Track.art, Z_Track.id, "listening now");
                 return;
             }
             Z_Live = false;
-            let Z_Last = null;
-            try {
-                Z_Last = JSON.parse(localStorage.getItem(Z_Key) ?? "null");
-            } catch {  }
+            const Z_Last = Z_Read<Z_TrackJson>(Z_Key);
             if (Z_Last) {
-                Z_Show(Z_Last.song, Z_Last.artist, Z_Last.art, Z_Last.id, "listened " + Z_Ago(Z_Last.t));
+                Z_Show(
+                    Z_Last.song ?? "",
+                    Z_Last.artist ?? "",
+                    Z_Last.art ?? "",
+                    Z_Last.id ?? "",
+                    "listened " + Z_Ago(Z_Last.t ?? 0),
+                );
             }
         }
 
-        interface Z_TrackJson {
-            song?: string;
-            artist?: string;
-            art?: string;
-            id?: string;
-            t?: number;
-            live?: boolean;
-        }
+        const Z_Wiki: Record<string, string> = {
+            "82-8000": "File:82-8000@PEK (20171108141951).jpg",
+            "92-9000": "File:92-9000@PEK (20141110091435).JPG",
+            "UR-82060": "File:UR-82060@TSN (20200426124033).jpg",
+            "G-BOAC": "File:British Airways Concorde G-BOAC 02.jpg",
+            "G-BOAF": "File:British Airways Concorde G-BOAF (25857645176).jpg",
+            "F-GSTA": "File:Airbus Beluga 1 F-GSTA 02.jpg",
+            "F-WWEA": "File:A380 F-WWEA LEGT 2.jpg",
+            "F-WXLR": "File:F-WXLR, ILA 2024, Schoenefeld (ILA45296).jpg",
+            N905NA: "File:Shuttle Carrier Aircraft N905NA at Space Center Houston.jpg",
+            N780BA: "File:07142018 Boeing Company B744LCF N780BA KPAE NASEDIT2 (43830183822).jpg",
+            N787BA: "File:N787BA Boeing 787 Boeing Co (7286114022).jpg",
+            JA873A: "File:JA873A@PEK (20200705130524).jpg",
+            JA789A: "File:ANA Boeing 777-300ER; JA789A@HKG;04.08.2011 615ge (6207793648).jpg",
+            "G-EUPJ": "File:20251011 British Airways G-EUPJ EGLL.jpg",
+            "9V-SKA": "File:9V-SKA@PEK (20170309171352).jpg",
+            "VH-OQA": "File:Qantas a380 vh-oqa takeoff heathrow arp.jpg",
+            "D-ABYT": "File:D-ABYT@HKG (20190222160855).jpg",
+            "PH-BVA": "File:KLM B777-306ER (PH-BVA) at Amsterdam Airport Schiphol (1).jpg",
+            "A7-ANB": "File:A7-ANB 09072018LHR (29510026258).jpg",
+            "TF-AAK":
+                'File:Air Atlanta Icelandic Boeing 747-428 TF-AAK "Ed Force One" (26808846474).jpg',
+        };
 
         async function Z_Plane() {
             try {
@@ -629,45 +683,63 @@ try {
                 try {
                     const Z_R = await fetch("/api/plane");
                     if (!Z_R.ok) return;
-                    const Z_P = (await Z_R.json()) as any;
+                    const Z_P = (await Z_R.json()) as { reg?: string; day?: string };
                     Z_Reg = Z_P?.reg ?? "";
                     Z_Day = Z_P?.day ?? "";
                     if (!Z_Reg || !Z_Day) return;
                 } catch {
                     return;
                 }
+                const Z_Old = Z_Read<Z_PlaneStored>("Z_Plane");
+                if (Z_Old?.day === Z_Day && Z_Old?.src) {
+                    Z_PlaneShow(
+                        Z_Old.info ?? "",
+                        Z_Old.src,
+                        Z_Old.alt ?? "",
+                        Z_Old.link ?? "",
+                        Z_Old.by ?? "",
+                    );
+                    return;
+                }
+                const Z_File = Z_Wiki[Z_Reg];
+                if (!Z_File) return;
+                let Z_Page: Z_CommonsPage | undefined;
                 try {
-                    const Z_Old = JSON.parse(localStorage.getItem("Z_Plane") ?? "null") as any;
-                    if (Z_Old?.day === Z_Day && Z_Old?.src) {
-                        Z_PlaneShow(Z_Old.info, Z_Old.src, Z_Old.alt, Z_Old.link, Z_Old.by);
-                        return;
-                    }
-                } catch {  }
-                let Z_Pages: any[] = [];
-                try {
-                    const Z_Q = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(Z_Reg)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=1280&format=json&origin=*`;
+                    const Z_Q = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(Z_File)}&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=1280&format=json&origin=*`;
                     const Z_Cr = await fetch(Z_Q);
                     if (!Z_Cr.ok) return;
-                    Z_Pages = Object.values(((await Z_Cr.json()) as any)?.query?.pages ?? {});
+                    const Z_J = (await Z_Cr.json()) as Z_Commons;
+                    Z_Page = Object.values(Z_J?.query?.pages ?? {})[0];
                 } catch {
                     return;
                 }
-                const Z_Found = Z_Pages.find((Z_Pg: any) => (Z_Pg?.title ?? "").toUpperCase().includes(Z_Reg) && (Z_Pg?.imageinfo?.[0]?.width ?? 0) >= 800) ?? Z_Pages[0];
-                const Z_Info0 = Z_Found?.imageinfo?.[0];
+                const Z_Info0 = Z_Page?.imageinfo?.[0];
                 const Z_Src = Z_Info0?.thumburl ?? Z_Info0?.url;
                 if (!Z_Src) return;
-                const Z_RawBy = Z_Info0?.extmetadata?.Artist?.value ?? "";
+                const Z_RawBy = String(Z_Info0?.extmetadata?.Artist?.value ?? "");
                 const Z_ByV = Z_RawBy.replace(/<[^>]*>/g, "").trim() || "Wikimedia Commons";
+                const Z_Lic = Z_Info0?.extmetadata?.LicenseShortName?.value ?? "";
+                const Z_ByLine = Z_Lic ? `${Z_ByV} (${Z_Lic})` : Z_ByV;
                 const Z_Href = Z_Info0?.descriptionurl ?? "";
-                const Z_InfoV = [Z_Reg, (Z_Found?.title ?? "").replace(/^File:/, "").replace(/\.[a-z]+$/i, "")].filter(Boolean).join(" / ");
-                Z_PlaneShow(Z_InfoV, Z_Src, Z_InfoV, Z_Href, Z_ByV);
-                try {
-                    localStorage.setItem("Z_Plane", JSON.stringify({ day: Z_Day, info: Z_InfoV, src: Z_Src, alt: Z_InfoV, link: Z_Href, by: Z_ByV }));
-                } catch {  }
-            } catch {  }
+                Z_PlaneShow(Z_Reg, Z_Src, Z_Reg, Z_Href, Z_ByLine);
+                Z_Write("Z_Plane", {
+                    day: Z_Day,
+                    info: Z_Reg,
+                    src: Z_Src,
+                    alt: Z_Reg,
+                    link: Z_Href,
+                    by: Z_ByLine,
+                });
+            } catch {}
         }
 
-        function Z_PlaneShow(Z_InfoV: string, Z_Src: string, Z_Alt: string, Z_Href: string, Z_ByV: string) {
+        function Z_PlaneShow(
+            Z_InfoV: string,
+            Z_Src: string,
+            Z_Alt: string,
+            Z_Href: string,
+            Z_ByV: string,
+        ) {
             const Z_Fig = document.getElementById("Z_PlaneFig");
             const Z_Img = document.getElementById("Z_PlaneArt") as HTMLImageElement | null;
             const Z_Info = document.getElementById("Z_PlaneInfo");
@@ -687,28 +759,39 @@ try {
 
         async function Z_Poll() {
             if (document.hidden) return;
-            const Z_Local =
-                location.hostname === "localhost" ||
-                location.hostname === "127.0.0.1";
+            const Z_Local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
             if (!Z_Local) {
                 try {
                     const Z_Api = await fetch("/api/listening");
-                if (Z_Api.ok) {
-                    const Z_J = (await Z_Api.json()) as Z_TrackJson;
-                    if (Z_J?.song) {
-                        Z_Live = !!Z_J.live;
-                        Z_Show(Z_J.song, Z_J.artist ?? "", Z_J.art ?? "", Z_J.id ?? "", Z_J.live ? "listening now" : "listened " + Z_Ago(Z_J.t ?? 0));
-                        return;
+                    if (Z_Api.ok) {
+                        const Z_J = (await Z_Api.json()) as Z_TrackJson;
+                        if (Z_J?.song) {
+                            Z_Live = !!Z_J.live;
+                            Z_Write(Z_Key, {
+                                song: Z_J.song,
+                                artist: Z_J.artist ?? "",
+                                art: Z_J.art ?? "",
+                                id: Z_J.id ?? "",
+                                t: Z_J.t ?? Date.now(),
+                            });
+                            Z_Show(
+                                Z_J.song,
+                                Z_J.artist ?? "",
+                                Z_J.art ?? "",
+                                Z_J.id ?? "",
+                                Z_J.live ? "listening now" : "listened " + Z_Ago(Z_J.t ?? 0),
+                            );
+                            return;
+                        }
                     }
-                }
-            } catch {  }
+                } catch {}
             }
             try {
                 const Z_Res = await fetch("https://api.lanyard.rest/v1/users/1007939118925361212");
                 if (!Z_Res.ok) return;
-                const Z_Body = (await Z_Res.json()) as { data?: unknown };
+                const Z_Body = (await Z_Res.json()) as { data?: Z_Lanyard };
                 Z_Render(Z_Body?.data);
-            } catch {  }
+            } catch {}
         }
 
         function Z_Sock() {
@@ -720,9 +803,9 @@ try {
                 return;
             }
             Z_Ws.onmessage = (Z_Ev) => {
-                let Z_Msg: any = null;
+                let Z_Msg: Z_WsMsg | null = null;
                 try {
-                    Z_Msg = JSON.parse(Z_Ev.data);
+                    Z_Msg = JSON.parse(Z_Ev.data) as Z_WsMsg;
                 } catch {
                     return;
                 }
@@ -732,8 +815,13 @@ try {
                     Z_Beat = window.setInterval(() => {
                         Z_Ws?.send(JSON.stringify({ op: 3 }));
                     }, Z_Ms);
-                    Z_Ws?.send(JSON.stringify({ op: 2, d: { subscribe_to_id: "1007939118925361212" } }));
-                } else if (Z_Msg.op === 0 && (Z_Msg.t === "INIT_STATE" || Z_Msg.t === "PRESENCE_UPDATE")) {
+                    Z_Ws?.send(
+                        JSON.stringify({ op: 2, d: { subscribe_to_id: "1007939118925361212" } }),
+                    );
+                } else if (
+                    Z_Msg.op === 0 &&
+                    (Z_Msg.t === "INIT_STATE" || Z_Msg.t === "PRESENCE_UPDATE")
+                ) {
                     Z_Poll();
                 }
             };

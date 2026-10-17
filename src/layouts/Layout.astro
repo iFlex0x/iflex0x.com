@@ -20,6 +20,7 @@ const { title, description } = Astro.props;
         <meta name="description" content={description} />
         <meta name="theme-color" content="#070707" />
         <link rel="icon" href="https://media.iflex0x.com/favicon.png" />
+        <link rel="preconnect" href="https://media.iflex0x.com" />
         <title>{title}</title>
         <meta property="og:type" content="website" />
         <meta property="og:title" content={title} />
@@ -31,26 +32,39 @@ const { title, description } = Astro.props;
         <script is:inline>
             try {
                 var Z_T = localStorage.getItem("Z_Theme");
-                if (!Z_T) Z_T = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+                if (!Z_T)
+                    Z_T = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
                 if (Z_T === "light") document.documentElement.classList.add("Z_Light");
             } catch (Z_E) {}
+            document.addEventListener(
+                "error",
+                (Z_E) => {
+                    const Z_Img = Z_E.target;
+                    if (Z_Img && Z_Img.tagName === "IMG" && Z_Img.dataset.fallback) {
+                        Z_Img.onerror = null;
+                        Z_Img.src = Z_Img.dataset.fallback;
+                    }
+                },
+                true,
+            );
         </script>
         <slot name="head" />
     </head>
     <body>
-        <a class="skip" href="#main">Skip to content</a>
+        <a class="skip" href="#main">
+            Skip to content
+        </a>
         <slot />
         <footer>
             <div class="foot-row">
                 <span>iflex0x</span>
-                <a
-                    href="https://github.com/iFlex0x/iflex0x.com"
-                    rel="noopener noreferrer"
-                >
+                <a href="https://github.com/iFlex0x/iflex0x.com" rel="noopener noreferrer">
                     source
                 </a>
                 <a href="mailto:ad@iflex0x.com">mail</a>
-                <span class="Z_Zulu" id="Z_Zulu">--:--:--</span>
+                <span class="Z_Zulu" id="Z_Zulu">
+                    --:--:--
+                </span>
             </div>
             <div class="foot-theme">
                 <button
@@ -58,10 +72,42 @@ const { title, description } = Astro.props;
                     id="Z_Theme"
                     type="button"
                     aria-pressed="false"
-                    aria-label="switch to light mode"
+                    aria-label="light mode"
                 >
-                    <svg class="Z_Moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></svg>
-                    <svg class="Z_Sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>
+                    <svg
+                        class="Z_Moon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />
+                    </svg>
+                    <svg
+                        class="Z_Sun"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2" />
+                        <path d="M12 20v2" />
+                        <path d="m4.93 4.93 1.41 1.41" />
+                        <path d="m17.66 17.66 1.41 1.41" />
+                        <path d="M2 12h2" />
+                        <path d="M20 12h2" />
+                        <path d="m6.34 17.66-1.41 1.41" />
+                        <path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
                 </button>
             </div>
             <p class="credits">
@@ -74,10 +120,7 @@ const { title, description } = Astro.props;
                     bignut.zip
                 </a>
                 , hugo drawn by
-                <a
-                    href="https://www.instagram.com/neptunicsunset/"
-                    rel="noopener noreferrer"
-                >
+                <a href="https://www.instagram.com/neptunicsunset/" rel="noopener noreferrer">
                     neptunicsunset
                 </a>
                 .
@@ -88,16 +131,6 @@ const { title, description } = Astro.props;
                 const Z_T = Z_E.target as HTMLElement | null;
                 if (Z_T && Z_T.closest("img, .work")) Z_E.preventDefault();
             });
-            document.addEventListener("error", (Z_E) => {
-                const Z_T = Z_E.target as HTMLElement | null;
-                if (Z_T && Z_T.tagName === "IMG") {
-                    const Z_Fb = (Z_T as HTMLImageElement).dataset.fallback;
-                    if (Z_Fb) {
-                        delete (Z_T as HTMLImageElement).dataset.fallback;
-                        (Z_T as HTMLImageElement).src = Z_Fb;
-                    }
-                }
-            }, true);
             const Z_Zulu = document.getElementById("Z_Zulu");
             function Z_Clock() {
                 if (!Z_Zulu) return;
@@ -113,7 +146,6 @@ const { title, description } = Astro.props;
                 const Z_B = document.getElementById("Z_Theme");
                 if (Z_B) {
                     Z_B.setAttribute("aria-pressed", String(Z_T === "light"));
-                    Z_B.setAttribute("aria-label", Z_T === "light" ? "switch to dark mode" : "switch to light mode");
                 }
                 const Z_M = document.querySelector('meta[name="theme-color"]');
                 if (Z_M) Z_M.setAttribute("content", Z_T === "light" ? "#e4ddcc" : "#070707");
@@ -122,13 +154,15 @@ const { title, description } = Astro.props;
             Z_Mq.addEventListener("change", (Z_E) => {
                 try {
                     if (!localStorage.getItem("Z_Theme")) Z_Mode(Z_E.matches ? "light" : "dark");
-                } catch {  }
+                } catch {}
             });
             document.getElementById("Z_Theme")?.addEventListener("click", () => {
-                const Z_Next = document.documentElement.classList.contains("Z_Light") ? "dark" : "light";
+                const Z_Next = document.documentElement.classList.contains("Z_Light")
+                    ? "dark"
+                    : "light";
                 try {
                     localStorage.setItem("Z_Theme", Z_Next);
-                } catch {  }
+                } catch {}
                 Z_Mode(Z_Next);
             });
         </script>

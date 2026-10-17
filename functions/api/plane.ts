@@ -5,7 +5,7 @@ const Z_Fleet = [
     "G-BOAC",
     "G-BOAF",
     "F-GSTA",
-    "F-WWOW",
+    "F-WWEA",
     "F-WXLR",
     "N905NA",
     "N780BA",
@@ -21,11 +21,21 @@ const Z_Fleet = [
     "TF-AAK",
 ];
 
-export const onRequest: PagesFunction = () => {
+const Z_Cache = (caches as unknown as { default: Cache }).default;
+
+export const onRequest: PagesFunction = async (Z_Ctx) => {
+    if (Z_Ctx.request.method === "GET") {
+        const Z_Hit = await Z_Cache.match(Z_Ctx.request);
+        if (Z_Hit) return Z_Hit;
+    }
     const Z_Day = new Date().toISOString().slice(0, 10);
     const Z_Start = Math.floor(Date.parse(`${Z_Day}T00:00:00Z`) / 86400000);
-    return Response.json(
+    const Z_Res = Response.json(
         { reg: Z_Fleet[Z_Start % Z_Fleet.length], day: Z_Day },
-        { headers: { "Cache-Control": "public, s-maxage=3600" } },
+        { headers: { "Cache-Control": "public, s-maxage=300" } },
     );
+    if (Z_Ctx.request.method === "GET") {
+        Z_Ctx.waitUntil(Z_Cache.put(Z_Ctx.request, Z_Res.clone()));
+    }
+    return Z_Res;
 };

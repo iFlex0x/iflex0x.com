@@ -22,7 +22,7 @@ html.Z_Light {
     --Z_Bg: #e4ddcc;
     --Z_Card: #f1ebdb;
     --Z_Ink: #1c1813;
-    --Z_Mute: #6f6455;
+    --Z_Mute: #5f5547;
     --Z_Line: #d3c9b2;
     --Z_Accent: #a30000;
     --Z_Link: #a30000;
@@ -40,9 +40,12 @@ html.Z_Light .chip {
 body,
 .card,
 .chip,
-.net a,
+.freq a,
 .Z_Theme {
-    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+    transition:
+        background-color 0.35s ease,
+        color 0.35s ease,
+        border-color 0.35s ease;
 }
 
 html.Z_Light .Z_Theme {
@@ -546,7 +549,7 @@ html.Z_Light .Z_Moon {
 #Z_Song {
     font-size: 24px;
     font-weight: 700;
-    color: var(--Z_Ink);
+    color: #ffffff;
     text-decoration: none;
     white-space: nowrap;
     overflow: hidden;
@@ -555,7 +558,7 @@ html.Z_Light .Z_Moon {
 
 #Z_Artist {
     font-size: 14px;
-    color: var(--Z_Mute);
+    color: #d0d0d0;
     text-decoration: none;
     white-space: nowrap;
     overflow: hidden;
