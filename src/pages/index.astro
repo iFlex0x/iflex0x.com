@@ -757,12 +757,14 @@ try {
             Z_Fig.hidden = false;
         }
 
-        async function Z_Poll() {
+        async function Z_Poll(Z_Fresh = false) {
             if (document.hidden) return;
             const Z_Local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
             if (!Z_Local) {
                 try {
-                    const Z_Api = await fetch("/api/listening");
+                    const Z_Api = await fetch(
+                        Z_Fresh ? `/api/listening?t=${Date.now()}` : "/api/listening",
+                    );
                     if (Z_Api.ok) {
                         const Z_J = (await Z_Api.json()) as Z_TrackJson;
                         if (Z_J?.song) {
@@ -822,7 +824,7 @@ try {
                     Z_Msg.op === 0 &&
                     (Z_Msg.t === "INIT_STATE" || Z_Msg.t === "PRESENCE_UPDATE")
                 ) {
-                    Z_Poll();
+                    Z_Poll(true);
                 }
             };
             Z_Ws.onclose = () => {
@@ -832,9 +834,12 @@ try {
         }
 
         Z_Sock();
-        Z_Poll();
+        Z_Poll(true);
         Z_Plane();
         window.setInterval(Z_Poll, 60000);
         window.setInterval(Z_Tick, 30000);
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) Z_Poll(true);
+        });
     </script>
 </Layout>
