@@ -535,6 +535,28 @@ html.Z_Light .Z_Moon {
         transform 0.4s ease;
 }
 
+.Z_Art {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    -webkit-mask-image: radial-gradient(#fff, #fff);
+    mask-image: radial-gradient(#fff, #fff);
+    background: none;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transform: scale(1.04);
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
+    pointer-events: none;
+}
+
+.Z_Art.Z_On {
+    opacity: 1;
+    transform: none;
+}
+
 .Z_Banner figcaption {
     position: absolute;
     left: 16px;

@@ -180,6 +180,7 @@ try {
                         <h2 id="listening-heading">listening</h2>
                     </div>
                     <figure class="Z_Banner" id="Z_Banner" hidden>
+                        <span class="Z_Art" id="Z_Art" aria-hidden="true"></span>
                         <figcaption>
                             <a id="Z_Song" rel="noopener noreferrer"></a>
                             <a id="Z_Artist" rel="noopener noreferrer"></a>
@@ -462,6 +463,7 @@ try {
 
     <script>
         const Z_Banner = document.getElementById("Z_Banner");
+        const Z_Art = document.getElementById("Z_Art");
         const Z_Head = document.getElementById("listening-heading");
         const Z_Song = document.getElementById("Z_Song") as HTMLAnchorElement | null;
         const Z_Artist = document.getElementById("Z_Artist") as HTMLAnchorElement | null;
@@ -582,6 +584,27 @@ try {
         const Z_ShadeV =
             "linear-gradient(to top, rgba(7, 7, 7, 0.94) 0%, rgba(7, 7, 7, 0.45) 45%, rgba(7, 7, 7, 0) 80%)";
 
+        let Z_ArtTimer = 0;
+        const Z_ArtFade = 520;
+
+        function Z_PaintArt(Z_El: HTMLElement, Z_Next: string) {
+            if (!Z_Art || !Z_El.style.backgroundImage) {
+                Z_El.style.backgroundImage = Z_Next;
+                return;
+            }
+            Z_Art.style.transition = "none";
+            Z_Art.classList.remove("Z_On");
+            Z_Art.style.backgroundImage = Z_Next;
+            void Z_Art.offsetWidth;
+            Z_Art.style.transition = "";
+            Z_Art.classList.add("Z_On");
+            window.clearTimeout(Z_ArtTimer);
+            Z_ArtTimer = window.setTimeout(() => {
+                Z_El.style.backgroundImage = Z_Next;
+                Z_Art.classList.remove("Z_On");
+            }, Z_ArtFade);
+        }
+
         function Z_Show(
             Z_SongV: string,
             Z_ArtistV: string,
@@ -596,7 +619,7 @@ try {
             const Z_Pre = new Image();
             Z_Pre.decoding = "async";
             const Z_Paint = () => {
-                Z_Banner.style.backgroundImage = `${Z_ShadeV}, url("${Z_ArtV}")`;
+                Z_PaintArt(Z_Banner, `${Z_ShadeV}, url("${Z_ArtV}")`);
                 Z_Banner.setAttribute("aria-label", `${Z_SongV} by ${Z_ArtistV}`);
                 Z_Decode(Z_Song, Z_SongV);
                 Z_Decode(Z_Artist, Z_ArtistV);
