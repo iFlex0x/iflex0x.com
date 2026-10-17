@@ -1,0 +1,7 @@
+dist
+node_modules
+.astro
+.wrangler
+pnpm-lock.yaml
+README.md
+LICENSE
