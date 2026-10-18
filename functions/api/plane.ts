@@ -1,17 +1,12 @@
 const Z_Fleet = [
     "82-8000",
-    "92-9000",
     "UR-82060",
     "G-BOAC",
-    "G-BOAF",
     "F-GSTA",
     "F-WWEA",
-    "F-WXLR",
     "N905NA",
-    "N780BA",
     "N787BA",
     "JA873A",
-    "JA789A",
     "G-EUPJ",
     "9V-SKA",
     "VH-OQA",
@@ -19,6 +14,7 @@ const Z_Fleet = [
     "PH-BVA",
     "A7-ANB",
     "TF-AAK",
+    "D-AIHW",
 ];
 
 const Z_Cache = (caches as unknown as { default: Cache }).default;
