@@ -163,6 +163,22 @@ html.Z_Light .sig {
     gap: 4px;
 }
 
+.likes li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.likes li::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--Z_Accent);
+    flex-shrink: 0;
+    margin-top: 0.55em;
+}
+
 .Z_Zulu {
     margin-left: auto;
     font-family: ui-monospace, monospace;
@@ -375,7 +391,8 @@ footer {
     color: var(--Z_Mute);
 }
 
-.credits {
+.credits,
+.copyright {
     margin: 0;
     color: var(--Z_Mute);
 }
