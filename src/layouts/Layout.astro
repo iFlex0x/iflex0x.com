@@ -8,6 +8,7 @@ export interface Props {
     description: string;
 }
 const { title, description } = Astro.props;
+const Z_Year = new Date().getFullYear();
 ---
 
 <!doctype html>
@@ -125,6 +126,7 @@ const { title, description } = Astro.props;
                 </a>
                 .
             </p>
+            <p class="copyright">© {Z_Year} iflex0x</p>
         </footer>
         <script>
             document.addEventListener("contextmenu", (Z_E) => {
