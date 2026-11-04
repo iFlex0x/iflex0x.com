@@ -1,0 +1,108 @@
+.content {
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+}
+
+h1 {
+    font-size: 32px;
+    margin: 0 0 8px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.field span {
+    font-size: 12px;
+    color: var(--Z_Mute);
+}
+
+.input {
+    width: 100%;
+    background: var(--Z_Bg);
+    color: var(--Z_Ink);
+    border: 1px solid var(--Z_Line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font: inherit;
+}
+
+.input:focus-visible {
+    outline: 2px solid var(--Z_Accent);
+    outline-offset: 2px;
+}
+
+textarea.input {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.btn,
+.btn-secondary,
+.btn-danger {
+    display: inline-block;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+
+.btn {
+    background: var(--Z_Accent);
+    color: #ffffff;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--Z_Ink);
+    border-color: var(--Z_Line);
+}
+
+.btn-danger {
+    background: transparent;
+    color: var(--Z_Link);
+    border-color: var(--Z_Line);
+}
+
+.inv-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1.2fr 0.8fr 0.8fr 0.8fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--Z_Line);
+    font-size: 14px;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.total-preview {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 12px;
+}
+
+.msg {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--Z_Line);
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+@media (max-width: 860px) {
+    .inv-row {
+        grid-template-columns: 1fr;
+    }
+}

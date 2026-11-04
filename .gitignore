@@ -16,6 +16,11 @@ pnpm-debug.log*
 .env
 .env.production
 .env.local
+.dev.vars
+.dev.vars.*
+
+# browser artifacts
+.playwright-mcp/
 
 # OS-specific files
 .DS_Store
