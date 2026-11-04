@@ -1,19 +1,21 @@
-import { CONFIG } from "./config";
+import { CONFIG, SITE_URL } from "./config";
 import { escapeHtml } from "./html";
 import { htmlResponse, textResponse } from "./http";
 import type { PageKind } from "./http";
 
+type FooterOptions =
+    | { footer: "site" }
+    | { footer: "document"; footerMeta: { number: string; expiry: string } }
+    | { footer: "none" };
+
 export type PageShellOptions = {
     title: string;
-    nonce: string;
+    nonce?: string;
     kind: PageKind;
     body: string;
-    footer: "site" | "document" | "none";
-    footerMeta?: { number: string; expiry: string };
     scripts?: string[];
-    showTheme?: boolean;
     head?: string;
-};
+} & FooterOptions;
 
 const PREPAINT =
     'try{var Z_T=localStorage.getItem("Z_Theme");if(!Z_T)Z_T=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";if(Z_T==="light")document.documentElement.classList.add("Z_Light")}catch(Z_E){}';
@@ -32,7 +34,7 @@ const THEME_BUTTON =
 
 function siteFooter(): string {
     const year = new Date().getUTCFullYear();
-    const html = `<footer>
+    return `<footer>
     <div class="foot-row">
         <span>iflex0x</span>
         <a href="https://github.com/iFlex0x/iflex0x.com" rel="noopener noreferrer">source</a>
@@ -43,16 +45,16 @@ function siteFooter(): string {
     <p class="credits">inspired by <a href="https://iamw.ing/" rel="noopener noreferrer">iamw.ing</a>, <a href="https://bignut.zip/" rel="noopener noreferrer">bignut.zip</a>, hugo drawn by <a href="https://www.instagram.com/neptunicsunset/" rel="noopener noreferrer">neptunicsunset</a>.</p>
     <p class="copyright">© ${year} iflex0x</p>
 </footer>`;
-
-    return html;
 }
 
 function documentFooter(meta: { number: string; expiry: string }): string {
     return `<footer class="doc-foot">
     <div class="foot-row">
-        <span>iflex0x / <a href="${escapeHtml(CONFIG.siteUrl)}">iflex0x.com</a></span>
-        <span class="Z_Zulu">${escapeHtml(meta.number)}</span>
-        <span class="Z_Zulu">link valid until ${escapeHtml(meta.expiry)}</span>
+        <span>iflex0x / <a href="${escapeHtml(SITE_URL)}">iflex0x.com</a></span>
+        <span class="doc-foot-meta">
+            <span class="muted">${escapeHtml(meta.number)}</span>
+            <span class="muted">link valid until ${escapeHtml(meta.expiry)}</span>
+        </span>
     </div>
     <div class="foot-theme">
         ${THEME_BUTTON}
@@ -62,27 +64,25 @@ function documentFooter(meta: { number: string; expiry: string }): string {
 }
 
 export function pageShell(opts: PageShellOptions): string {
-    const showTheme = opts.showTheme ?? true;
-    const scripts = [
-        ...(showTheme ? ["/invoice/theme.js"] : []),
-        ...(opts.scripts ?? []),
-    ]
+    const themed = opts.kind !== "error";
+    const scripts = [...(themed ? ["/invoice/theme.js"] : []), ...(opts.scripts ?? [])]
         .map((src) => `<script src="${src}" defer></script>`)
         .join("");
     const footer =
         opts.footer === "site"
             ? siteFooter()
             : opts.footer === "document"
-              ? documentFooter(opts.footerMeta ?? { number: "", expiry: "" })
+              ? documentFooter(opts.footerMeta)
               : "";
-    const themeScript = showTheme ? `<script nonce="${opts.nonce}">${PREPAINT}</script>` : "";
-
+    const themeScript = themed ? `<script nonce="${opts.nonce}">${PREPAINT}</script>` : "";
     const html = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(opts.title)}</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="referrer" content="no-referrer">
 <meta name="darkreader-lock">
 <meta name="theme-color" content="#070707">
 <link rel="icon" href="/favicon.png">
@@ -95,34 +95,40 @@ ${themeScript}
 <body>
 <a class="skip" href="#main">Skip to content</a>
 ${opts.body}`;
-
     return html + footer + scripts + "</body></html>";
 }
 
-function errorPage(title: string, message: string, status: number): Response {
-    let body = `<main id="main" class="Z_Room"><section class="card" aria-labelledby="error-heading"><div class="head"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></svg></span><h1 id="error-heading">${escapeHtml(title)}</h1></div>`;
-    body += `<p>${message}</p></section></main>`;
-
+function errorPage(
+    title: string,
+    message: string,
+    status: number,
+    link?: { href: string; label: string },
+): Response {
+    const anchor = link
+        ? ` <a href="${escapeHtml(link.href)}" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`
+        : "";
+    const body = `<main id="main" class="Z_Room"><section class="card" aria-labelledby="error-heading"><div class="head"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></svg></span><h1 id="error-heading">${escapeHtml(title)}</h1></div><p>${escapeHtml(message)}${anchor}</p></section></main>`;
     return htmlResponse(
-        pageShell({ title: `${title} / iFlex`, nonce: "", kind: "error", body, footer: "none", showTheme: false }),
-        { kind: "error", status },
+        pageShell({ title: `${title} / iflex0x`, kind: "error", body, footer: "none" }),
+        {
+            kind: "error",
+            status,
+        },
     );
 }
 
 export function notFoundPage(): Response {
-    return errorPage(
-        "not found",
-        `this link doesn't point to an invoice. <a href="${escapeHtml(CONFIG.siteUrl)}">iflex0x.com</a>`,
-        404,
-    );
+    return errorPage("not found", "this link doesn't point to an invoice.", 404, {
+        href: SITE_URL,
+        label: "iflex0x.com",
+    });
 }
 
 export function gonePage(): Response {
-    return errorPage(
-        "link expired",
-        `ask <a href="mailto:${escapeHtml(CONFIG.email)}">${escapeHtml(CONFIG.email)}</a> for a fresh one.`,
-        410,
-    );
+    return errorPage("link expired", "this link expired. ask for a fresh one:", 410, {
+        href: `mailto:${CONFIG.email}`,
+        label: CONFIG.email,
+    });
 }
 
 export function forbiddenPage(): Response {
@@ -140,5 +146,7 @@ export function unavailablePage(): Response {
 }
 
 export function robotsResponse(): Response {
-    return textResponse("User-agent: *\nDisallow: /\n", 200, { "Cache-Control": "public, max-age=3600" });
+    return textResponse("User-agent: *\nDisallow: /\n", 200, {
+        "Cache-Control": "public, max-age=3600",
+    });
 }

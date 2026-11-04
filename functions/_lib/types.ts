@@ -2,6 +2,7 @@ import type { StoredStatus } from "./status";
 
 export interface Env {
     INVOICES_DB: D1Database;
+    Z_LISTEN: KVNamespace;
     ACCESS_TEAM_DOMAIN: string;
     ACCESS_AUD: string;
     ADMIN_EMAIL: string;
@@ -25,7 +26,23 @@ export type InvoiceRow = {
     expires_on: string;
     revoked_at: string | null;
     body: string;
+    subtotal_cents: number;
+    discount_cents: number;
+    tax_cents: number;
     total_cents: number;
     created_at: string;
     updated_at: string;
 };
+
+export type InvoiceListRow = Pick<
+    InvoiceRow,
+    | "id"
+    | "token"
+    | "number"
+    | "client_name"
+    | "status"
+    | "due_on"
+    | "expires_on"
+    | "revoked_at"
+    | "total_cents"
+>;

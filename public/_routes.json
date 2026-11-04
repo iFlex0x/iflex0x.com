@@ -1,5 +1,14 @@
 {
     "version": 1,
     "include": ["/*"],
-    "exclude": ["/_astro/*", "/invoice/*", "/cdn-cgi/*", "/favicon.png", "/logo.png", "/hugo.png", "/signature.png", "/rat.png"]
+    "exclude": [
+        "/_astro/*",
+        "/invoice/*",
+        "/cdn-cgi/*",
+        "/favicon.png",
+        "/logo.png",
+        "/hugo.png",
+        "/signature.png",
+        "/rat.png"
+    ]
 }

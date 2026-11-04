@@ -9,7 +9,7 @@ export const onRequest: PagesFunction<Env> = async (ctx) => {
     if (route.kind === "robots") return robotsResponse();
     if (route.kind === "not-found") return notFoundPage();
     if (route.kind === "redirect") {
-        return Response.redirect(`https://${route.host}${url.pathname}${url.search}`, 301);
+        return Response.redirect(`https://${route.host}${url.pathname}${url.search}`, 302);
     }
 
     return ctx.next();

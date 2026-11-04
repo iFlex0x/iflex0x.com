@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Z_Companion from "../components/Z_Companion.astro";
+import { CONFIG } from "../../functions/_lib/config";
 
 interface Z_Repo {
     name: string;
@@ -211,7 +212,7 @@ try {
                         VATSIM
                     </a>
                     pilot and tower trainee for copenhagen kastrup (EKCH), i fly the a320, a350,
-                    a380, and 777-300er / 777f , md-11, piper pa28, Extra E330 on the network.
+                    a380, and 777-300er / 777f, md-11, piper pa28, Extra E330 on the network.
                     working towards my S2 T1 rating.
                 </p>
                 <figure class="Z_Plane" id="Z_PlaneFig" hidden>
@@ -369,7 +370,10 @@ try {
                         </a>
                     </li>
                     <li>
-                        <a href="https://www.paypal.com/paypalme/iflex8" rel="noopener noreferrer">
+                        <a
+                            href={`https://www.paypal.com/paypalme/${CONFIG.paypalHandle}`}
+                            rel="noopener noreferrer"
+                        >
                             <span>support is highly appreciated &lt;3</span>
                             <span class="net">
                                 <svg viewBox="0 0 24 24" fill="currentColor" role="img">
@@ -554,7 +558,7 @@ try {
                 Z_Show((await Z_Res.json()) as Z_TrackJson);
             } catch {}
         }
-async function Z_Plane() {
+        async function Z_Plane() {
             const Z_Fig = document.getElementById("Z_PlaneFig");
             const Z_Img = document.getElementById("Z_PlaneArt") as HTMLImageElement | null;
             const Z_Info = document.getElementById("Z_PlaneInfo");

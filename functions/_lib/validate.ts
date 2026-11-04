@@ -1,3 +1,4 @@
+import { LIMITS } from "./config";
 import { computeTotals, type InvoiceBody, type Totals } from "./money";
 
 export const MAX_BODY_BYTES = 65536;
@@ -18,8 +19,8 @@ export type ParseResult = { ok: true; value: NormalizedInvoice } | { ok: false; 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const DECIMAL_RE = /^\d+(\.\d{1,2})?$/;
 
-function text(value: unknown): string | null {
-    return typeof value === "string" ? value.trim() : null;
+function text(value: unknown): string {
+    return typeof value === "string" ? value.trim() : "";
 }
 
 function decimal(value: unknown): number | null {
@@ -28,7 +29,6 @@ function decimal(value: unknown): number | null {
     if (!DECIMAL_RE.test(raw)) return null;
     const [whole, fraction = ""] = raw.split(".");
     const amount = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
-
     return Number.isSafeInteger(amount) ? amount : null;
 }
 
@@ -43,23 +43,26 @@ function fail(error: string): ParseResult {
 }
 
 export function parseInvoicePayload(raw: unknown): ParseResult {
-    if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return fail("invalid payload");
+    if (typeof raw !== "object" || raw === null || Array.isArray(raw))
+        return fail("invalid payload");
     const input = raw as Record<string, unknown>;
 
     const number = text(input.number);
-    if (!number || number.length > 40) return fail("invalid invoice number");
+    if (!number || number.length > LIMITS.number) return fail("invalid invoice number");
 
     const clientName = text(input.clientName);
-    if (!clientName || clientName.length > 80) return fail("invalid client name");
+    if (!clientName || clientName.length > LIMITS.clientName) return fail("invalid client name");
 
-    const clientSub = text(input.clientSub) ?? "";
-    if (clientSub.length > 80) return fail("client sub is too long");
+    const clientSub = text(input.clientSub);
+    if (clientSub.length > LIMITS.clientSub) return fail("client sub is too long");
 
-    if (!Array.isArray(input.clientLines) || input.clientLines.length > 5) return fail("invalid client lines");
+    if (!Array.isArray(input.clientLines) || input.clientLines.length > LIMITS.clientLines) {
+        return fail("invalid client lines");
+    }
     const clientLines: string[] = [];
     for (const line of input.clientLines) {
         const value = text(line);
-        if (value === null || value.length > 120) return fail("invalid client line");
+        if (value.length > LIMITS.clientLine) return fail("invalid client line");
         if (value !== "") clientLines.push(value);
     }
 
@@ -70,35 +73,42 @@ export function parseInvoicePayload(raw: unknown): ParseResult {
     const dueOn = rawDue === null || rawDue === undefined || rawDue === "" ? null : text(rawDue);
     if (dueOn !== null && (!isDate(dueOn) || dueOn < issuedOn)) return fail("invalid due date");
 
-    if (!Array.isArray(input.items) || input.items.length < 1 || input.items.length > 20) {
+    if (
+        !Array.isArray(input.items) ||
+        input.items.length < 1 ||
+        input.items.length > LIMITS.items
+    ) {
         return fail("invalid item count");
     }
 
     const items: InvoiceBody["items"] = [];
     for (const entry of input.items) {
-        if (typeof entry !== "object" || entry === null || Array.isArray(entry)) return fail("invalid item");
+        if (typeof entry !== "object" || entry === null || Array.isArray(entry))
+            return fail("invalid item");
         const item = entry as Record<string, unknown>;
         const title = text(item.title);
-        if (!title || title.length > 120) return fail("invalid item title");
-        const desc = text(item.desc) ?? "";
-        if (desc.length > 300) return fail("item description is too long");
+        if (!title || title.length > LIMITS.itemTitle) return fail("invalid item title");
+        const desc = text(item.desc);
+        if (desc.length > LIMITS.itemDesc) return fail("item description is too long");
         const qtyHundredths = decimal(item.qty);
-        if (qtyHundredths === null || qtyHundredths < 1 || qtyHundredths > 100000) return fail("invalid quantity");
+        if (qtyHundredths === null || qtyHundredths < 1 || qtyHundredths > LIMITS.qtyHundredths) {
+            return fail("invalid quantity");
+        }
         const rateCents = decimal(item.rate);
-        if (rateCents === null || rateCents < 0 || rateCents > 100000000) return fail("invalid rate");
+        if (rateCents === null || rateCents > LIMITS.rateCents) return fail("invalid rate");
         items.push({ title, desc, qtyHundredths, rateCents });
     }
 
     const discountCents = decimal(input.discount ?? "0");
     if (discountCents === null || discountCents < 0) return fail("invalid discount");
-    const discountLabel = text(input.discountLabel) ?? "";
-    if (discountLabel.length > 40) return fail("discount label is too long");
+    const discountLabel = text(input.discountLabel);
+    if (discountLabel.length > LIMITS.discountLabel) return fail("discount label is too long");
 
     const taxBp = decimal(input.taxRate ?? "0");
-    if (taxBp === null || taxBp < 0 || taxBp > 10000) return fail("invalid tax rate");
+    if (taxBp === null || taxBp > LIMITS.taxBp) return fail("invalid tax rate");
 
-    const note = text(input.note) ?? "";
-    if (note.length > 1000) return fail("note is too long");
+    const note = text(input.note);
+    if (note.length > LIMITS.note) return fail("note is too long");
 
     const body: InvoiceBody = { items, discountCents, discountLabel, taxBp, note };
     const totals = computeTotals(body);

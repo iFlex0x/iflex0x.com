@@ -1,5 +1,4 @@
-export const INVOICE_HOST = "invoice.iflex0x.com";
-export const APEX_HOST = "iflex0x.com";
+import { CONFIG } from "./config";
 
 export type RouteDecision =
     | { kind: "pass" }
@@ -18,21 +17,24 @@ function isAdminPath(pathname: string): boolean {
 export function decideRoute(hostname: string, pathname: string): RouteDecision {
     if (pathname.startsWith("/cdn-cgi/")) return { kind: "pass" };
 
+    if (hostname === "localhost" || hostname === "127.0.0.1") return { kind: "pass" };
+
     if (hostname.endsWith(".pages.dev")) {
-        const host = isInvoicePath(pathname) || isAdminPath(pathname) ? INVOICE_HOST : APEX_HOST;
+        const host =
+            isInvoicePath(pathname) || isAdminPath(pathname) ? CONFIG.invoiceHost : CONFIG.domain;
         return { kind: "redirect", host };
     }
 
-    if (hostname === INVOICE_HOST) {
+    if (hostname === CONFIG.invoiceHost) {
         if (pathname === "/robots.txt") return { kind: "robots" };
         if (isInvoicePath(pathname) || isAdminPath(pathname)) return { kind: "pass" };
         return { kind: "not-found" };
     }
 
-    if (hostname === APEX_HOST || hostname === `www.${APEX_HOST}`) {
+    if (hostname === CONFIG.domain || hostname === `www.${CONFIG.domain}`) {
         if (isInvoicePath(pathname) || isAdminPath(pathname)) return { kind: "not-found" };
         return { kind: "pass" };
     }
 
-    return { kind: "pass" };
+    return { kind: "not-found" };
 }

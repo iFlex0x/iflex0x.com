@@ -8,13 +8,21 @@ const SECURITY_HEADERS: Record<string, string> = {
     "Referrer-Policy": "no-referrer",
     "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
     "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-Permitted-Cross-Domain-Policies": "none",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "Permissions-Policy": "geolocation=(), camera=(), microphone=(), payment=()",
 };
 
 export function makeNonce(): string {
     return crypto.randomUUID();
 }
 
-export function cspFor(kind: PageKind, nonce?: string): string {
+export function cspFor(kind: "invoice" | "admin", nonce: string): string;
+export function cspFor(kind: "error"): string;
+export function cspFor(kind: PageKind, nonce = ""): string {
     if (kind === "invoice") {
         return `${BASE_CSP}; script-src 'self' 'nonce-${nonce}'; connect-src 'none'; form-action 'none'`;
     }
@@ -24,14 +32,16 @@ export function cspFor(kind: PageKind, nonce?: string): string {
     return `${BASE_CSP}; script-src 'none'`;
 }
 
-export function htmlResponse(
-    html: string,
-    opts: { kind: PageKind; nonce?: string; status?: number; head?: boolean },
-): Response {
+export type HtmlResponseInit =
+    | { kind: "invoice" | "admin"; nonce: string; status?: number; head?: boolean }
+    | { kind: "error"; status?: number; head?: boolean };
+
+export function htmlResponse(html: string, opts: HtmlResponseInit): Response {
     const headers = new Headers({
         "Content-Type": "text/html; charset=utf-8",
         ...SECURITY_HEADERS,
-        "Content-Security-Policy": cspFor(opts.kind, opts.nonce),
+        "Content-Security-Policy":
+            opts.kind === "error" ? cspFor("error") : cspFor(opts.kind, opts.nonce),
     });
 
     return new Response(opts.head ? null : html, { status: opts.status ?? 200, headers });
@@ -49,7 +59,11 @@ export function jsonResponse(data: unknown, status = 200): Response {
     });
 }
 
-export function textResponse(text: string, status = 200, headers: Record<string, string> = {}): Response {
+export function textResponse(
+    text: string,
+    status = 200,
+    headers: Record<string, string> = {},
+): Response {
     return new Response(text, {
         status,
         headers: {

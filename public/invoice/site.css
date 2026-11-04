@@ -179,6 +179,16 @@ body {
     flex-shrink: 0;
 }
 
+.muted {
+    color: var(--Z_Mute);
+}
+
+.doc-foot-meta {
+    display: flex;
+    gap: 16px;
+    margin-left: auto;
+}
+
 a {
     color: var(--Z_Link);
     transition: opacity 0.15s ease;

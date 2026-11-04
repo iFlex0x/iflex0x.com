@@ -4,7 +4,6 @@ export function generateToken(): string {
     const bytes = new Uint8Array(16);
     crypto.getRandomValues(bytes);
     const binary = String.fromCharCode(...bytes);
-
     return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
