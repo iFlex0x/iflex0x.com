@@ -1,0 +1,268 @@
+.doc {
+    width: 792px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+}
+
+.doc-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.doc-logo {
+    width: 180px;
+    height: auto;
+    display: block;
+}
+
+.doc-meta {
+    text-align: right;
+    min-width: 210px;
+}
+
+.kicker {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--Z_Mute);
+}
+
+.doc-number {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-top: 1px;
+}
+
+.doc-dates {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--Z_Mute);
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--Z_Link);
+}
+
+.status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--Z_Accent);
+    flex-shrink: 0;
+}
+
+.status.overdue {
+    color: var(--Z_Accent);
+}
+
+.status.paid {
+    color: var(--Z_Paid);
+}
+
+.status.paid::before {
+    background: var(--Z_PaidDot);
+}
+
+.status.void {
+    color: var(--Z_Mute);
+}
+
+.status.void::before {
+    background: var(--Z_Mute);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.grid .card p {
+    color: var(--Z_Mute);
+}
+
+.items {
+    margin-top: 14px;
+}
+
+.items table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.items caption {
+    text-align: left;
+    padding-bottom: 8px;
+}
+
+.items th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--Z_Mute);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--Z_Line);
+}
+
+.items td {
+    font-size: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--Z_Line);
+    vertical-align: top;
+}
+
+.items td p {
+    color: var(--Z_Mute);
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.items td:not(:first-child),
+.items th:not(:first-child) {
+    text-align: right;
+    padding-left: 12px;
+}
+
+.pay {
+    margin-top: 14px;
+}
+
+.payline {
+    margin-top: 8px;
+}
+
+.paybtn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: var(--Z_Accent);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.qr {
+    width: 72px;
+    height: 72px;
+    display: block;
+    margin-top: 12px;
+    background: #ffffff;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+.totals {
+    margin-top: 14px;
+}
+
+.totals .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--Z_Line);
+    font-size: 14px;
+}
+
+.totals .row:last-child {
+    border-bottom: none;
+}
+
+.totals .row.total {
+    font-size: 18px;
+    font-weight: 700;
+    padding-top: 10px;
+}
+
+.notes {
+    margin-top: 14px;
+}
+
+.doc-foot {
+    max-width: 792px;
+    padding-top: 24px;
+}
+
+@media (max-width: 700px) {
+    .doc {
+        width: 100%;
+        padding: 24px 16px 48px;
+    }
+
+    .doc-top {
+        flex-direction: column;
+    }
+
+    .doc-meta {
+        text-align: left;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media print {
+    @page {
+        margin: 12mm;
+    }
+
+    html,
+    body {
+        background: #ffffff;
+        color: #000000;
+    }
+
+    .skip,
+    .Z_Theme,
+    #print,
+    .paybtn {
+        display: none !important;
+    }
+
+    .doc {
+        width: auto;
+        padding: 0;
+    }
+
+    .card {
+        background: #ffffff;
+        border: 1px solid #d0d0d0;
+        border-radius: 0;
+        break-inside: avoid;
+    }
+
+    .doc-logo {
+        filter: brightness(0);
+    }
+
+    .status,
+    .status.overdue,
+    .status.paid,
+    .status.void {
+        color: #000000;
+    }
+
+    .status::before {
+        background: #000000;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    a {
+        color: #000000;
+        text-decoration: none;
+    }
+}

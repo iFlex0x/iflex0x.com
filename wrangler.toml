@@ -5,3 +5,8 @@ compatibility_date = "2026-10-16"
 [[kv_namespaces]]
 binding = "Z_LISTEN"
 id = "591af236adb443dd8e0bf5df17fd8b25"
+
+[[d1_databases]]
+binding = "INVOICES_DB"
+database_name = "iflex-invoices"
+database_id = "8035e29f-3d63-4137-952e-bb7126bb3809"

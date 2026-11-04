@@ -2,7 +2,7 @@
 
 source code of [iflex0x.com](https://iflex0x.com/), built with astro static and vanilla css.
 
-build: `pnpm install`, `pnpm build`, output in `dist/`.
+build: `pnpm install`, `pnpm check`, `pnpm test`, `pnpm build`, output in `dist/`.
 preview: `pnpm preview`.
 
 license: all rights reserved.

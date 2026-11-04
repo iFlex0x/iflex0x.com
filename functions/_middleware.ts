@@ -1,7 +1,16 @@
-export const onRequest: PagesFunction = async (Z_Ctx) => {
-    const Z_Url = new URL(Z_Ctx.request.url);
-    if (Z_Url.hostname.endsWith(".pages.dev")) {
-        return Response.redirect(`https://iflex0x.com${Z_Url.pathname}${Z_Url.search}`, 301);
+import { decideRoute } from "./_lib/routing";
+import { notFoundPage, robotsResponse } from "./_lib/layout";
+import type { Env } from "./_lib/types";
+
+export const onRequest: PagesFunction<Env> = async (ctx) => {
+    const url = new URL(ctx.request.url);
+    const route = decideRoute(url.hostname, url.pathname);
+
+    if (route.kind === "robots") return robotsResponse();
+    if (route.kind === "not-found") return notFoundPage();
+    if (route.kind === "redirect") {
+        return Response.redirect(`https://${route.host}${url.pathname}${url.search}`, 301);
     }
-    return Z_Ctx.next();
+
+    return ctx.next();
 };

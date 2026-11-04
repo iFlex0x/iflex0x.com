@@ -1,0 +1,19 @@
+const HTML_ESCAPES: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+};
+
+export function escapeHtml(value: string): string {
+    return value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
+}
+
+export function escapeAttr(value: string): string {
+    return escapeHtml(value);
+}
+
+export function preserveLines(value: string): string {
+    return escapeHtml(value.replace(/\r\n?/g, "\n")).replace(/\n/g, "<br>");
+}
