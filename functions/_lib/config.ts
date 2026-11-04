@@ -5,7 +5,8 @@ export const CONFIG = {
     paypalHandle: "iflex8",
     expiryDays: 90,
     timeZone: "Europe/Copenhagen",
-    fromLines: ["iflex0x", "Copenhagen, Denmark", "ad@iflex0x.com"],
+    fromName: "iflex0x",
+    fromSub: "content, design, editing",
 };
 
 export const SITE_URL = `https://${CONFIG.domain}`;

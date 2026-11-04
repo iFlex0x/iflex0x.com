@@ -3,8 +3,10 @@ import { formatDisplayDate } from "./dates";
 import { shownStatus } from "./status";
 import { escapeHtml, preserveLines } from "./html";
 import { pageShell } from "./layout";
-import { CONFIG } from "./config";
+import { CONFIG, SITE_URL } from "./config";
 import { parseBody, parseLines } from "./db";
+import { chip, statusTag } from "./ui";
+import { qrSvg } from "./qr";
 import type { InvoiceRow } from "./types";
 
 export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today: string }): string {
@@ -21,88 +23,122 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
     <img class="doc-logo" src="/logo.png" alt="iflex0x">
     <div class="doc-meta">
         <div class="kicker">invoice</div>
-        <div class="doc-number">${escapeHtml(row.number)}</div>
+        <h1 class="doc-number">#${escapeHtml(row.number)}</h1>
         <div class="doc-dates">issued ${formatDisplayDate(row.issued_on)} / due ${dueText}</div>
-        <div class="status" data-status="${status}">${status}</div>
+        ${statusTag(status)}
     </div>
 </header>`;
 
-    const clientLines = lines.length ? `<p>${lines.map(escapeHtml).join("<br>")}</p>` : "";
-
-    const parties = `<div class="grid">
-    <section class="card" aria-labelledby="from-heading">
-        <h2 id="from-heading">from</h2>
-        ${CONFIG.fromLines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}
+    const parties = `<div class="doc-grid">
+    <section class="card doc-from" aria-labelledby="from-heading">
+        ${chip("palette", "from", "from-heading")}
+        <div class="name">${escapeHtml(CONFIG.fromName)}</div>
+        <div class="sub">${escapeHtml(CONFIG.fromSub)}</div>
+        <div class="line">
+            <a href="${escapeHtml(SITE_URL)}">${escapeHtml(CONFIG.domain)}</a>
+            <a href="mailto:${escapeHtml(CONFIG.email)}">${escapeHtml(CONFIG.email)}</a>
+        </div>
     </section>
     <section class="card" aria-labelledby="bill-heading">
-        <h2 id="bill-heading">bill to</h2>
-        <div class="client-name">${escapeHtml(row.client_name)}</div>
-        ${row.client_sub ? `<p>${escapeHtml(row.client_sub)}</p>` : ""}
-        ${clientLines}
+        ${chip("user", "bill to", "bill-heading")}
+        <div class="name">${escapeHtml(row.client_name)}</div>
+        ${row.client_sub ? `<div class="sub">${escapeHtml(row.client_sub)}</div>` : ""}
+        ${lines.length ? `<div class="line">${lines.map((line) => `<span>${escapeHtml(line)}</span>`).join("")}</div>` : ""}
     </section>
 </div>`;
 
     const itemRows = body.items
         .map(
             (item) => `<tr>
-    <td><strong>${escapeHtml(item.title)}</strong>${item.desc ? `<p>${escapeHtml(item.desc)}</p>` : ""}</td>
-    <td>${formatNumber(item.qtyHundredths)}</td>
-    <td>${formatUsd(item.rateCents)}</td>
-    <td>${formatUsd(itemAmountCents(item.qtyHundredths, item.rateCents))}</td>
+    <td>
+        <div class="t">${escapeHtml(item.title)}</div>
+        ${item.desc ? `<div class="d">${escapeHtml(item.desc)}</div>` : ""}
+    </td>
+    <td class="r m">${formatNumber(item.qtyHundredths)}</td>
+    <td class="r m rate">${formatUsd(item.rateCents)}</td>
+    <td class="r m amt">${formatUsd(itemAmountCents(item.qtyHundredths, item.rateCents))}</td>
 </tr>`,
         )
         .join("");
 
     const items = `<section class="card items" aria-labelledby="items-heading">
-    <h2 id="items-heading">items</h2>
+    ${chip("list", "items", "items-heading")}
     <table>
-        <caption class="skip">invoice items</caption>
-        <thead><tr><th scope="col">item</th><th scope="col">qty</th><th scope="col">rate</th><th scope="col">amount</th></tr></thead>
+        <caption class="sr">invoice items</caption>
+        <thead>
+            <tr>
+                <th scope="col">description</th>
+                <th class="r" scope="col">qty</th>
+                <th class="r rate" scope="col">rate</th>
+                <th class="r" scope="col">amount</th>
+            </tr>
+        </thead>
         <tbody>${itemRows}</tbody>
     </table>
 </section>`;
 
-    const payment = voided
-        ? ""
-        : `<section class="card pay" aria-labelledby="pay-heading">
-    <h2 id="pay-heading">payment</h2>
-    ${paid ? `<p>paid on ${formatDisplayDate(row.paid_on!)}</p>` : ""}
-    ${!paid && !payable ? `<p>no payment due.</p>` : ""}
-    ${
-        payable
-            ? `<p class="payline">pay <a href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">${formatUsd(row.total_cents)}</a> to ${escapeHtml(CONFIG.email)}</p>
-    <p class="muted">reference ${escapeHtml(row.number)}</p>
-    <img class="qr" src="/invoice/qr.png" alt="PayPal QR code" width="240" height="240">
-    <p><a class="paybtn" href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">pay ${formatUsd(row.total_cents)}</a></p>`
-            : ""
+    const paylines = `<div class="payline"><b>PayPal</b><br><a href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">paypal.me/${escapeHtml(CONFIG.paypalHandle)}</a></div>
+        <div class="payline"><b>Email</b><br><a href="mailto:${escapeHtml(CONFIG.email)}">${escapeHtml(CONFIG.email)}</a></div>
+        <div class="payline"><b>Due</b> ${dueText}</div>
+        <div class="payline"><b>Reference</b> ${escapeHtml(row.number)}</div>`;
+
+    let paymentBody: string;
+    if (paid) {
+        paymentBody = `<div class="pay-grid">
+        <div>
+            <div class="payline"><b>Paid</b> ${formatDisplayDate(row.paid_on!)}</div>
+            <div class="payline"><b>PayPal</b><br>paypal.me/${escapeHtml(CONFIG.paypalHandle)}</div>
+            <div class="payline"><b>Email</b><br><a href="mailto:${escapeHtml(CONFIG.email)}">${escapeHtml(CONFIG.email)}</a></div>
+            <div class="payline"><b>Reference</b> ${escapeHtml(row.number)}</div>
+        </div>
+    </div>`;
+    } else if (voided) {
+        paymentBody = `<p class="muted">no payment due. this invoice is void.</p>`;
+    } else if (payable) {
+        paymentBody = `<div class="pay-grid">
+        <div>
+            ${paylines}
+            <a class="paybtn" href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">pay ${formatUsd(row.total_cents)}</a>
+        </div>
+        ${qrSvg(payUrl)}
+    </div>`;
+    } else {
+        paymentBody = `<p class="muted">no payment due.</p>`;
     }
+
+    const payment = `<section class="card pay" aria-labelledby="pay-heading">
+    ${chip("card", "payment", "pay-heading")}
+    ${paymentBody}
 </section>`;
 
     const totalsRows = [
-        `<div class="row"><span>subtotal</span><span>${formatUsd(row.subtotal_cents)}</span></div>`,
+        `<div class="trow"><span>subtotal</span><span class="m">${formatUsd(row.subtotal_cents)}</span></div>`,
         row.discount_cents > 0
-            ? `<div class="row"><span>discount${body.discountLabel ? ` (${escapeHtml(body.discountLabel)})` : ""}</span><span>-${formatUsd(row.discount_cents)}</span></div>`
+            ? `<div class="trow"><span>discount${body.discountLabel ? ` (${escapeHtml(body.discountLabel)})` : ""}</span><span class="m">-${formatUsd(row.discount_cents)}</span></div>`
             : "",
         row.tax_cents > 0
-            ? `<div class="row"><span>tax ${formatNumber(body.taxBp)}%</span><span>${formatUsd(row.tax_cents)}</span></div>`
+            ? `<div class="trow"><span>tax (${formatNumber(body.taxBp)}%)</span><span class="m">${formatUsd(row.tax_cents)}</span></div>`
             : "",
-        `<div class="row total"><span>total due</span><span>${formatUsd(row.total_cents)}</span></div>`,
+        `<div class="trow total"><span class="k">total due</span><span class="v">${formatUsd(row.total_cents)}</span></div>`,
     ].join("");
 
-    const totalsSection = `<section class="card totals" aria-labelledby="totals-heading">
-    <h2 id="totals-heading">totals</h2>
+    const totals = `<section class="card totals" aria-labelledby="totals-heading">
+    ${chip("calculator", "totals", "totals-heading")}
     ${totalsRows}
 </section>`;
 
     const notes = body.note
-        ? `<section class="card notes" aria-labelledby="notes-heading"><h2 id="notes-heading">notes</h2><p>${preserveLines(body.note)}</p></section>`
+        ? `<section class="card notes" aria-labelledby="notes-heading">
+    ${chip("pencil", "notes", "notes-heading")}
+    <p>${preserveLines(body.note)}</p>
+</section>`
         : "";
 
     return pageShell({
-        title: `invoice ${row.number} / iflex0x`,
+        title: `invoice #${row.number} / iflex0x`,
         nonce: opts.nonce,
         kind: "invoice",
-        body: `<main id="main" class="doc">${header}${parties}${items}${payment}${totalsSection}${notes}</main>`,
+        body: `<main id="main" class="doc">${header}${parties}${items}<div class="doc-bottom">${payment}${totals}</div>${notes}</main>`,
         footer: "document",
         footerMeta: { number: row.number, expiry: formatDisplayDate(row.expires_on) },
         scripts: ["/invoice/invoice.js"],

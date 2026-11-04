@@ -17,23 +17,34 @@ export type PageShellOptions = {
     head?: string;
 } & FooterOptions;
 
-const PREPAINT =
-    'try{var Z_T=localStorage.getItem("Z_Theme");if(!Z_T)Z_T=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";if(Z_T==="light")document.documentElement.classList.add("Z_Light")}catch(Z_E){}';
+const PREPAINT = `try {
+    var Z_T = localStorage.getItem("Z_Theme");
+    if (!Z_T)
+        Z_T = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    if (Z_T === "light") document.documentElement.classList.add("Z_Light");
+} catch (Z_E) {}
+document.addEventListener(
+    "error",
+    (Z_E) => {
+        const Z_Img = Z_E.target;
+        if (Z_Img && Z_Img.tagName === "IMG" && Z_Img.dataset.fallback) {
+            Z_Img.onerror = null;
+            Z_Img.src = Z_Img.dataset.fallback;
+        }
+    },
+    true,
+);`;
 
-const MOON =
-    '<svg class="Z_Moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></svg>';
+const MOON = `<svg class="Z_Moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>`;
 
-const SUN =
-    '<svg class="Z_Sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></svg>';
+const SUN = `<svg class="Z_Sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
 
-const THEME_BUTTON =
-    '<button class="Z_Theme" id="Z_Theme" type="button" aria-pressed="false" aria-label="light mode">' +
-    MOON +
-    SUN +
-    "</button>";
+const THEME_BUTTON = `<button class="Z_Theme" id="Z_Theme" type="button" aria-pressed="false" aria-label="light mode">${MOON}${SUN}</button>`;
+
+const PRINT_BUTTON = `<button class="Z_Print" id="print" type="button" aria-label="print" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>`;
 
 function siteFooter(): string {
-    const year = new Date().getUTCFullYear();
+    const year = new Date().getFullYear();
     return `<footer>
     <div class="foot-row">
         <span>iflex0x</span>
@@ -49,18 +60,13 @@ function siteFooter(): string {
 
 function documentFooter(meta: { number: string; expiry: string }): string {
     return `<footer class="doc-foot">
-    <div class="foot-row">
-        <span>iflex0x / <a href="${escapeHtml(SITE_URL)}">iflex0x.com</a></span>
-        <span class="doc-foot-meta">
-            <span class="muted">${escapeHtml(meta.number)}</span>
-            <span class="muted">link valid until ${escapeHtml(meta.expiry)}</span>
-        </span>
-    </div>
-    <div class="foot-theme">
-        ${THEME_BUTTON}
-        <button id="print" class="btn-secondary" type="button" hidden>print</button>
-    </div>
-</footer>`;
+    <span><b>iflex0x</b> / <a href="${escapeHtml(SITE_URL)}">${escapeHtml(CONFIG.domain)}</a></span>
+    <span class="doc-foot-meta">
+        <span>invoice #${escapeHtml(meta.number)}</span>
+        <span>link valid until ${escapeHtml(meta.expiry)}</span>
+    </span>
+</footer>
+<div class="doc-controls">${THEME_BUTTON}${PRINT_BUTTON}</div>`;
 }
 
 export function pageShell(opts: PageShellOptions): string {
@@ -84,6 +90,7 @@ export function pageShell(opts: PageShellOptions): string {
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <meta name="referrer" content="no-referrer">
 <meta name="darkreader-lock">
+<meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#070707">
 <link rel="icon" href="/favicon.png">
 <link rel="preload" href="/invoice/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -107,7 +114,7 @@ function errorPage(
     const anchor = link
         ? ` <a href="${escapeHtml(link.href)}" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`
         : "";
-    const body = `<main id="main" class="Z_Room"><section class="card" aria-labelledby="error-heading"><div class="head"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" /><path d="M12 8v4M12 16h.01" /></svg></span><h1 id="error-heading">${escapeHtml(title)}</h1></div><p>${escapeHtml(message)}${anchor}</p></section></main>`;
+    const body = `<main id="main" class="Z_Room"><section class="card" aria-labelledby="error-heading"><div class="head"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><h1 id="error-heading">${escapeHtml(title)}</h1></div><p>${escapeHtml(message)}${anchor}</p></section></main>`;
     return htmlResponse(
         pageShell({ title: `${title} / iflex0x`, kind: "error", body, footer: "none" }),
         {
