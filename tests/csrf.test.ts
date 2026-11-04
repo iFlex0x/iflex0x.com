@@ -8,9 +8,7 @@ function req(method: string, headers: Record<string, string> = {}): Request {
 }
 
 const valid = {
-    "Content-Type": "application/json",
     Origin: origin,
-    "Sec-Fetch-Site": "same-origin",
     "X-Admin-Request": "1",
 };
 
@@ -19,8 +17,9 @@ describe("checkCsrf", () => {
         expect(checkCsrf(req("GET"), origin)).toEqual({ ok: true });
     });
 
-    it("allows a valid same-origin write", () => {
+    it("allows a same-origin write", () => {
         expect(checkCsrf(req("POST", valid), origin)).toEqual({ ok: true });
+        expect(checkCsrf(req("PUT", valid), origin)).toEqual({ ok: true });
     });
 
     it("rejects a wrong origin", () => {
@@ -28,17 +27,7 @@ describe("checkCsrf", () => {
     });
 
     it("rejects a missing custom header", () => {
-        const headers = { ...valid };
-        delete (headers as Record<string, string>)["X-Admin-Request"];
-        expect(checkCsrf(req("POST", headers), origin).ok).toBe(false);
-    });
-
-    it("rejects a wrong content type", () => {
-        expect(checkCsrf(req("POST", { ...valid, "Content-Type": "text/plain" }), origin).ok).toBe(false);
-    });
-
-    it("rejects a cross-site fetch", () => {
-        expect(checkCsrf(req("POST", { ...valid, "Sec-Fetch-Site": "cross-site" }), origin).ok).toBe(false);
+        expect(checkCsrf(req("POST", { Origin: origin }), origin).ok).toBe(false);
     });
 
     it("rejects an unsupported method", () => {

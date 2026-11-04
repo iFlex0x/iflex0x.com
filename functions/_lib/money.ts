@@ -38,11 +38,13 @@ export function computeTotals(body: InvoiceBody): Totals {
 }
 
 export function formatUsd(cents: number): string {
-    const negative = cents < 0;
-    const abs = Math.abs(cents);
-    const dollars = Math.floor(abs / 100);
-    const rest = String(abs % 100).padStart(2, "0");
+    const dollars = Math.floor(cents / 100);
+    const rest = String(cents % 100).padStart(2, "0");
     const grouped = String(dollars).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-    return `${negative ? "-" : ""}$${grouped}.${rest}`;
+    return `$${grouped}.${rest}`;
+}
+
+export function formatNumber(hundredths: number): string {
+    return (hundredths / 100).toFixed(2).replace(/\.?0+$/, "");
 }

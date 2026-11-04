@@ -37,4 +37,12 @@ describe("verifyAccess", () => {
         });
         expect(result).toEqual({ ok: false, status: 403 });
     });
+
+    it("returns unavailable when Access is not configured", async () => {
+        const result = await verifyAccess(new Request("http://localhost/admin"), {
+            ...base,
+            ACCESS_TEAM_DOMAIN: "",
+        });
+        expect(result).toEqual({ ok: false, status: 503 });
+    });
 });

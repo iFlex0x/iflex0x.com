@@ -10,8 +10,7 @@ import type { Env } from "../../../../_lib/types";
 const ACTIONS: InvoiceAction[] = ["paid", "open", "void", "restore", "extend", "rotate", "revoke", "unrevoke"];
 
 export const onRequestPost: PagesFunction<Env> = async (ctx) => {
-    const id = ctx.params.id;
-    if (typeof id !== "string") return jsonResponse({ error: "not found" }, 404);
+    const id = String(ctx.params.id);
 
     const raw = await readJson(ctx.request, 4096);
     if (!raw.ok) return raw.response;
@@ -30,17 +29,19 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
     if (!next) return jsonResponse({ error: "invalid transition" }, 400);
 
     try {
-        const updated = await updateAction(ctx.env.INVOICES_DB, id, {
-            ...next,
-            updatedAt: new Date().toISOString(),
-        });
-        if (!updated) return jsonResponse({ error: "update failed" }, 409);
+        const updated = await updateAction(
+            ctx.env.INVOICES_DB,
+            id,
+            { ...next, updatedAt: new Date().toISOString() },
+            { status: row.status, updated_at: row.updated_at },
+        );
+        if (!updated) return jsonResponse({ error: "invoice changed, reload" }, 409);
 
         return jsonResponse(
             action === "rotate" && token ? { ok: true, url: `${CONFIG.invoiceUrl}/i/${token}` } : { ok: true },
         );
-    } catch {
-        console.error("invoice action failed", { number: row.number, code: "action" });
+    } catch (error) {
+        console.error("invoice action failed", error);
         return jsonResponse({ error: "action failed" }, 500);
     }
 };

@@ -12,6 +12,9 @@
         "preview": "astro preview",
         "check": "astro check",
         "test": "vitest run",
+        "dev:pages": "wrangler pages dev dist",
+        "db:migrate": "wrangler d1 migrations apply iflex-invoices --local",
+        "db:migrate:remote": "wrangler d1 migrations apply iflex-invoices --remote",
         "format": "prettier --write ."
     },
     "dependencies": {

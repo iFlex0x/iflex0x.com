@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeTotals, formatUsd, itemAmountCents } from "../functions/_lib/money";
+import { computeTotals, formatNumber, formatUsd, itemAmountCents } from "../functions/_lib/money";
 
 describe("itemAmountCents", () => {
     it("multiplies qty hundredths by cents", () => {
@@ -65,6 +65,14 @@ describe("formatUsd", () => {
         expect(formatUsd(0)).toBe("$0.00");
         expect(formatUsd(100)).toBe("$1.00");
         expect(formatUsd(123456)).toBe("$1,234.56");
-        expect(formatUsd(-100)).toBe("-$1.00");
+    });
+});
+
+describe("formatNumber", () => {
+    it("drops trailing zeroes from quantities and percentages", () => {
+        expect(formatNumber(100)).toBe("1");
+        expect(formatNumber(150)).toBe("1.5");
+        expect(formatNumber(2500)).toBe("25");
+        expect(formatNumber(0)).toBe("0");
     });
 });

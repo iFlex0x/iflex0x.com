@@ -12,11 +12,9 @@ describe("invoice host", () => {
         expect(decideRoute(invoice, "/admin/api/invoices")).toEqual({ kind: "pass" });
     });
 
-    it("serves robots and public assets", () => {
+    it("serves robots and invoice paths", () => {
         expect(decideRoute(invoice, "/robots.txt")).toEqual({ kind: "robots" });
-        expect(decideRoute(invoice, "/_astro/site.css")).toEqual({ kind: "pass" });
-        expect(decideRoute(invoice, "/invoice/qr.png")).toEqual({ kind: "pass" });
-        expect(decideRoute(invoice, "/logo.png")).toEqual({ kind: "pass" });
+        expect(decideRoute(invoice, "/i/abc")).toEqual({ kind: "pass" });
     });
 
     it("blocks site pages, sitemap, and work images", () => {

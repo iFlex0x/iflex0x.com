@@ -1,11 +1,36 @@
 import { describe, expect, it } from "vitest";
-import { nextState } from "../functions/_lib/actions";
+import { availableActions, nextState } from "../functions/_lib/actions";
 
 const open = { status: "open" as const, paid_on: null, expires_on: "2026-12-01", revoked_at: null };
 const paid = { status: "paid" as const, paid_on: "2026-11-01", expires_on: "2026-12-01", revoked_at: null };
 const voided = { status: "void" as const, paid_on: null, expires_on: "2026-12-01", revoked_at: null };
 const today = "2026-11-03";
 const now = "2026-11-03T12:00:00.000Z";
+
+describe("availableActions", () => {
+    const names = (status: "open" | "paid" | "void", revoked: string | null) =>
+        availableActions({ status, revoked_at: revoked }).map((button) => button.action);
+
+    it("offers the transitions the state allows", () => {
+        expect(names("open", null)).toEqual(["paid", "void", "extend", "rotate", "revoke"]);
+        expect(names("paid", null)).toEqual(["open", "void", "extend", "rotate", "revoke"]);
+        expect(names("void", null)).toEqual(["restore", "revoke"]);
+        expect(names("open", "2026-11-03T00:00:00Z")).toEqual([
+            "paid",
+            "void",
+            "extend",
+            "rotate",
+            "unrevoke",
+        ]);
+    });
+
+    it("labels the extension with the configured window", () => {
+        const extend = availableActions({ status: "open", revoked_at: null }).find(
+            (button) => button.action === "extend",
+        );
+        expect(extend?.label).toBe("extend 90 days");
+    });
+});
 
 describe("nextState", () => {
     it("moves open to paid and back", () => {

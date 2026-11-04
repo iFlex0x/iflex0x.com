@@ -22,14 +22,20 @@ interface Z_Stored {
 
 const Z_Cache = (caches as unknown as { default: Cache }).default;
 
+function Z_CacheKey(request: Request): Request {
+    const url = new URL(request.url);
+    return new Request(`${url.origin}${url.pathname}`, { method: "GET" });
+}
+
 export const onRequest: PagesFunction<Z_Env> = async (Z_Ctx) => {
+    const Z_Key = Z_CacheKey(Z_Ctx.request);
     if (Z_Ctx.request.method === "GET") {
-        const Z_Hit = await Z_Cache.match(Z_Ctx.request);
+        const Z_Hit = await Z_Cache.match(Z_Key);
         if (Z_Hit) return Z_Hit;
     }
     const Z_Res = await Z_Track(Z_Ctx);
     if (Z_Ctx.request.method === "GET") {
-        Z_Ctx.waitUntil(Z_Cache.put(Z_Ctx.request, Z_Res.clone()));
+        Z_Ctx.waitUntil(Z_Cache.put(Z_Key, Z_Res.clone()));
     }
     return Z_Res;
 };

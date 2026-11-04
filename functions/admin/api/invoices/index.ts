@@ -1,15 +1,11 @@
-import { insertInvoice } from "../../../_lib/db";
+import { insertInvoice, isUniqueNumberError } from "../../../_lib/db";
 import { parseInvoicePayload, MAX_BODY_BYTES } from "../../../_lib/validate";
 import { readJson } from "../../../_lib/request";
 import { generateToken } from "../../../_lib/token";
-import { addDaysIso } from "../../../_lib/dates";
+import { addDaysIso, todayIso } from "../../../_lib/dates";
 import { CONFIG } from "../../../_lib/config";
 import { jsonResponse, textResponse } from "../../../_lib/http";
 import type { Env } from "../../../_lib/types";
-
-function isUniqueNumberError(error: unknown): boolean {
-    return String(error).includes("UNIQUE constraint failed: invoices.number");
-}
 
 export const onRequestPost: PagesFunction<Env> = async (ctx) => {
     const raw = await readJson(ctx.request, MAX_BODY_BYTES);
@@ -21,7 +17,7 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
     const id = crypto.randomUUID();
     const token = generateToken();
     const createdAt = new Date().toISOString();
-    const expiresOn = addDaysIso(parsed.value.issuedOn, CONFIG.expiryDays);
+    const expiresOn = addDaysIso(todayIso(), CONFIG.expiryDays);
 
     try {
         await insertInvoice(ctx.env.INVOICES_DB, {
@@ -40,7 +36,7 @@ export const onRequestPost: PagesFunction<Env> = async (ctx) => {
         });
     } catch (error) {
         if (isUniqueNumberError(error)) return jsonResponse({ error: "number already used" }, 409);
-        console.error("invoice create failed", { number: parsed.value.number, code: "insert" });
+        console.error("invoice create failed", error);
         return jsonResponse({ error: "create failed" }, 500);
     }
 

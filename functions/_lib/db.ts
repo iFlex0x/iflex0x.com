@@ -30,6 +30,10 @@ export type InvoiceUpdate = {
 
 export type ActionPatch = ActionState & { updatedAt: string };
 
+export function isUniqueNumberError(error: unknown): boolean {
+    return String(error).includes("UNIQUE constraint failed: invoices.number");
+}
+
 export async function getByToken(db: D1Database, token: string): Promise<InvoiceRow | null> {
     return db.prepare("SELECT * FROM invoices WHERE token = ?").bind(token).first<InvoiceRow>();
 }
@@ -103,42 +107,33 @@ export async function updateInvoice(db: D1Database, id: string, row: InvoiceUpda
         )
         .run();
 
-    return (result.meta.changes ?? 0) > 0;
+    return result.meta.changes > 0;
 }
 
-export async function updateAction(db: D1Database, id: string, patch: ActionPatch): Promise<boolean> {
-    const result = patch.token
-        ? await db
-              .prepare(
-                  `UPDATE invoices
-                   SET status = ?, paid_on = ?, expires_on = ?, revoked_at = ?, token = ?, updated_at = ?
-                   WHERE id = ?`,
-              )
-              .bind(
-                  patch.status,
-                  patch.paid_on,
-                  patch.expires_on,
-                  patch.revoked_at,
-                  patch.token,
-                  patch.updatedAt,
-                  id,
-              )
-              .run()
-        : await db
-              .prepare(
-                  `UPDATE invoices
-                   SET status = ?, paid_on = ?, expires_on = ?, revoked_at = ?, updated_at = ?
-                   WHERE id = ?`,
-              )
-              .bind(
-                  patch.status,
-                  patch.paid_on,
-                  patch.expires_on,
-                  patch.revoked_at,
-                  patch.updatedAt,
-                  id,
-              )
-              .run();
+export async function updateAction(
+    db: D1Database,
+    id: string,
+    patch: ActionPatch,
+    previous: { status: string; updated_at: string },
+): Promise<boolean> {
+    const result = await db
+        .prepare(
+            `UPDATE invoices
+             SET status = ?, paid_on = ?, expires_on = ?, revoked_at = ?, token = COALESCE(?, token), updated_at = ?
+             WHERE id = ? AND status = ? AND updated_at = ?`,
+        )
+        .bind(
+            patch.status,
+            patch.paid_on,
+            patch.expires_on,
+            patch.revoked_at,
+            patch.token ?? null,
+            patch.updatedAt,
+            id,
+            previous.status,
+            previous.updated_at,
+        )
+        .run();
 
-    return (result.meta.changes ?? 0) > 0;
+    return result.meta.changes > 0;
 }

@@ -82,7 +82,6 @@ try {
                     height="320"
                     loading="lazy"
                     decoding="async"
-                    draggable="false"
                 />
                 <img
                     class="sig"
@@ -93,7 +92,6 @@ try {
                     height="56"
                     loading="lazy"
                     decoding="async"
-                    draggable="false"
                 />
             </section>
             <section class="card" aria-labelledby="zouna-heading">
@@ -181,7 +179,6 @@ try {
                         <h2 id="listening-heading">listening</h2>
                     </div>
                     <figure class="Z_Banner" id="Z_Banner" hidden>
-                        <span class="Z_Art" id="Z_Art" aria-hidden="true"></span>
                         <figcaption>
                             <a id="Z_Song" rel="noopener noreferrer"></a>
                             <a id="Z_Artist" rel="noopener noreferrer"></a>
@@ -227,7 +224,6 @@ try {
                             alt=""
                             loading="lazy"
                             decoding="async"
-                            draggable="false"
                         />
                     </a>
                     <figcaption>
@@ -259,10 +255,7 @@ try {
                         <li>
                             <a href={Z_R.html_url} rel="noopener noreferrer">
                                 <span class="proj">
-                                    <span>
-                                        {Z_R.name}
-                                        {Z_R.archived ? " (archived)" : ""}
-                                    </span>
+                                    <span>{Z_R.name}</span>
                                     <span class="desc">{Z_R.description ?? ""}</span>
                                 </span>
                                 <span class="net">
@@ -297,7 +290,6 @@ try {
                 fetchpriority="high"
                 width="272"
                 height="135"
-                draggable="false"
             />
             <section class="card" aria-labelledby="freq-heading">
                 <div class="head">
@@ -420,7 +412,6 @@ try {
                     alt="thumbnail about the therac-25 machine, text reads it lied"
                     loading="lazy"
                     decoding="async"
-                    draggable="false"
                 />
             </li>
             <li class="half">
@@ -432,7 +423,6 @@ try {
                     alt="poster of the main character of resonance, a plague tale legacy"
                     loading="lazy"
                     decoding="async"
-                    draggable="false"
                 />
             </li>
             <li class="half">
@@ -444,7 +434,6 @@ try {
                     alt="ROG rivals gameday poster for shelby"
                     loading="lazy"
                     decoding="async"
-                    draggable="false"
                 />
             </li>
             <li class="big">
@@ -456,7 +445,6 @@ try {
                     alt="thumbnail about editing until i learn vfx"
                     loading="lazy"
                     decoding="async"
-                    draggable="false"
                 />
             </li>
         </ul>
@@ -465,11 +453,9 @@ try {
 
     <script>
         const Z_Banner = document.getElementById("Z_Banner");
-        const Z_Art = document.getElementById("Z_Art");
         const Z_Head = document.getElementById("listening-heading");
         const Z_Song = document.getElementById("Z_Song") as HTMLAnchorElement | null;
         const Z_Artist = document.getElementById("Z_Artist") as HTMLAnchorElement | null;
-        const Z_Key = "Z_LastSong";
 
         interface Z_TrackJson {
             song?: string;
@@ -480,70 +466,31 @@ try {
             live?: boolean;
         }
 
-        interface Z_Lanyard {
-            listening_to_spotify?: boolean;
-            spotify?: {
-                song?: string;
-                artist?: string;
-                album_art_url?: string;
-                track_id?: string;
-            };
-        }
-
-        interface Z_WsMsg {
-            op?: number;
-            t?: string;
-            d?: { heartbeat_interval?: number };
-        }
-
-        interface Z_PlaneStored {
-            day?: string;
-            info?: string;
+        interface Z_PlaneJson {
+            reg?: string;
             src?: string;
             alt?: string;
             link?: string;
             by?: string;
         }
 
-        interface Z_CommonsInfo {
-            thumburl?: string;
-            url?: string;
-            descriptionurl?: string;
-            extmetadata?: {
-                Artist?: { value?: string };
-                LicenseShortName?: { value?: string };
-            };
+        function Z_Ago(Z_Time: number) {
+            const Z_Mins = Math.floor((Date.now() - Z_Time) / 60000);
+            if (Z_Mins < 30) return "recently";
+            if (Z_Mins < 60) return `${Z_Mins} minutes ago`;
+            const Z_Hours = Math.floor(Z_Mins / 60);
+            if (Z_Hours < 24) return `${Z_Hours}h ago`;
+            return `${Math.floor(Z_Hours / 24)}d ago`;
         }
 
-        interface Z_CommonsPage {
-            imageinfo?: Z_CommonsInfo[];
-        }
-
-        interface Z_Commons {
-            query?: { pages?: Record<string, Z_CommonsPage> };
-        }
-
-        function Z_Read<T>(Z_StoreKey: string) {
+        function Z_Url(Z_Value: string | undefined): string {
+            if (!Z_Value) return "";
             try {
-                return JSON.parse(localStorage.getItem(Z_StoreKey) ?? "null") as T | null;
+                const Z_Parsed = new URL(Z_Value);
+                return Z_Parsed.protocol === "https:" ? Z_Parsed.href : "";
             } catch {
-                return null;
+                return "";
             }
-        }
-
-        function Z_Write(Z_StoreKey: string, Z_Val: unknown) {
-            try {
-                localStorage.setItem(Z_StoreKey, JSON.stringify(Z_Val));
-            } catch {}
-        }
-
-        function Z_Ago(Z_T: number) {
-            const Z_M = Math.floor((Date.now() - Z_T) / 60000);
-            if (Z_M < 30) return "recently";
-            if (Z_M < 60) return `${Z_M} minutes ago`;
-            const Z_H = Math.floor(Z_M / 60);
-            if (Z_H < 24) return `${Z_H}h ago`;
-            return `${Math.floor(Z_H / 24)}d ago`;
         }
 
         const Z_Ghosts = "█▓▒░+/\\<>|{}[]01";
@@ -574,297 +521,72 @@ try {
             }, 28);
         }
 
-        function Z_Reveal() {
-            const Z_Fig = Z_Banner as HTMLElement | null;
-            if (!Z_Fig || !Z_Fig.hidden) return;
-            Z_Fig.hidden = false;
-            window.requestAnimationFrame(() => {
-                window.requestAnimationFrame(() => Z_Fig.classList.add("Z_In"));
-            });
-        }
-
-        const Z_ShadeV =
+        const Z_Shade =
             "linear-gradient(to top, rgba(7, 7, 7, 0.94) 0%, rgba(7, 7, 7, 0.45) 45%, rgba(7, 7, 7, 0) 80%)";
 
-        let Z_ArtTimer = 0;
-        const Z_ArtFade = 520;
-
-        function Z_PaintArt(Z_El: HTMLElement, Z_Next: string) {
-            if (!Z_Art || !Z_El.style.backgroundImage) {
-                Z_El.style.backgroundImage = Z_Next;
-                return;
-            }
-            Z_Art.style.transition = "none";
-            Z_Art.classList.remove("Z_On");
-            Z_Art.style.backgroundImage = Z_Next;
-            void Z_Art.offsetWidth;
-            Z_Art.style.transition = "";
-            Z_Art.classList.add("Z_On");
-            window.clearTimeout(Z_ArtTimer);
-            Z_ArtTimer = window.setTimeout(() => {
-                Z_El.style.backgroundImage = Z_Next;
-                Z_Art.classList.remove("Z_On");
-            }, Z_ArtFade);
-        }
-
-        function Z_Show(
-            Z_SongV: string,
-            Z_ArtistV: string,
-            Z_ArtV: string,
-            Z_TrackV: string,
-            Z_StateV: string,
-        ) {
+        function Z_Show(Z_Track: Z_TrackJson) {
             if (!Z_Banner || !Z_Head || !Z_Song || !Z_Artist) return;
-            Z_Head.textContent = Z_StateV;
-            if (Z_TrackV === Z_Current) return;
-            Z_Current = Z_TrackV;
-            const Z_Pre = new Image();
-            Z_Pre.decoding = "async";
-            const Z_Paint = () => {
-                Z_PaintArt(Z_Banner, `${Z_ShadeV}, url("${Z_ArtV}")`);
-                Z_Banner.setAttribute("aria-label", `${Z_SongV} by ${Z_ArtistV}`);
-                Z_Decode(Z_Song, Z_SongV);
-                Z_Decode(Z_Artist, Z_ArtistV);
-                const Z_Url = `https://open.spotify.com/track/${Z_TrackV}`;
-                Z_Song.href = Z_Url;
-                Z_Artist.href = Z_Url;
-                Z_Reveal();
-            };
-            Z_Pre.onload = Z_Paint;
-            Z_Pre.onerror = Z_Paint;
-            Z_Pre.src = Z_ArtV;
+            const Z_Art = Z_Url(Z_Track.art);
+            const Z_Id = Z_Track.id ?? "";
+            if (!Z_Track.song || !Z_Art || !Z_Id) return;
+
+            Z_Head.textContent = Z_Track.live
+                ? "listening now"
+                : `listened ${Z_Ago(Z_Track.t ?? Date.now())}`;
+            if (Z_Id === Z_Current) return;
+            Z_Current = Z_Id;
+
+            Z_Banner.style.backgroundImage = `${Z_Shade}, url(${JSON.stringify(Z_Art)})`;
+            Z_Banner.setAttribute("aria-label", `${Z_Track.song} by ${Z_Track.artist ?? ""}`);
+            Z_Decode(Z_Song, Z_Track.song);
+            Z_Decode(Z_Artist, Z_Track.artist ?? "");
+            Z_Song.href = `https://open.spotify.com/track/${encodeURIComponent(Z_Id)}`;
+            Z_Artist.href = Z_Song.href;
+            Z_Banner.hidden = false;
+            window.requestAnimationFrame(() => Z_Banner.classList.add("Z_In"));
         }
 
-        let Z_Live = false;
-
-        function Z_Tick() {
-            if (Z_Live || document.hidden) return;
-            const Z_Last = Z_Read<Z_TrackJson>(Z_Key);
-            if (Z_Last && Z_Head) Z_Head.textContent = "listened " + Z_Ago(Z_Last.t ?? 0);
-        }
-
-        function Z_Render(Z_Data: Z_Lanyard | undefined) {
-            const Z_Sp = Z_Data?.spotify;
-            if (Z_Data?.listening_to_spotify && Z_Sp) {
-                const Z_Track = {
-                    song: Z_Sp.song ?? "",
-                    artist: Z_Sp.artist ?? "",
-                    art: Z_Sp.album_art_url ?? "",
-                    id: Z_Sp.track_id ?? "",
-                    t: Date.now(),
-                };
-                Z_Write(Z_Key, Z_Track);
-                Z_Live = true;
-                Z_Show(Z_Track.song, Z_Track.artist, Z_Track.art, Z_Track.id, "listening now");
-                return;
-            }
-            Z_Live = false;
-            const Z_Last = Z_Read<Z_TrackJson>(Z_Key);
-            if (Z_Last) {
-                Z_Show(
-                    Z_Last.song ?? "",
-                    Z_Last.artist ?? "",
-                    Z_Last.art ?? "",
-                    Z_Last.id ?? "",
-                    "listened " + Z_Ago(Z_Last.t ?? 0),
-                );
-            }
-        }
-
-        const Z_Wiki: Record<string, string> = {
-            "82-8000": "File:82-8000@PEK (20171108141951).jpg",
-            "92-9000": "File:92-9000@PEK (20141110091435).JPG",
-            "UR-82060": "File:UR-82060@TSN (20200426124033).jpg",
-            "G-BOAC": "File:British Airways Concorde G-BOAC 02.jpg",
-            "G-BOAF": "File:British Airways Concorde G-BOAF (25857645176).jpg",
-            "F-GSTA": "File:Airbus Beluga 1 F-GSTA 02.jpg",
-            "F-WWEA": "File:A380 F-WWEA LEGT 2.jpg",
-            "F-WXLR": "File:F-WXLR, ILA 2024, Schoenefeld (ILA45296).jpg",
-            N905NA: "File:Shuttle Carrier Aircraft N905NA at Space Center Houston.jpg",
-            N780BA: "File:07142018 Boeing Company B744LCF N780BA KPAE NASEDIT2 (43830183822).jpg",
-            N787BA: "File:N787BA Boeing 787 Boeing Co (7286114022).jpg",
-            JA873A: "File:JA873A@PEK (20200705130524).jpg",
-            JA789A: "File:ANA Boeing 777-300ER; JA789A@HKG;04.08.2011 615ge (6207793648).jpg",
-            "G-EUPJ": "File:20251011 British Airways G-EUPJ EGLL.jpg",
-            "9V-SKA": "File:9V-SKA@PEK (20170309171352).jpg",
-            "VH-OQA": "File:Qantas a380 vh-oqa takeoff heathrow arp.jpg",
-            "D-ABYT": "File:D-ABYT@HKG (20190222160855).jpg",
-            "PH-BVA": "File:KLM B777-306ER (PH-BVA) at Amsterdam Airport Schiphol (1).jpg",
-            "A7-ANB": "File:A7-ANB 09072018LHR (29510026258).jpg",
-            "TF-AAK":
-                'File:Air Atlanta Icelandic Boeing 747-428 TF-AAK "Ed Force One" (26808846474).jpg',
-        };
-
-        async function Z_Plane() {
+        async function Z_Listening() {
+            if (document.hidden) return;
             try {
-                const Z_Fig = document.getElementById("Z_PlaneFig");
-                const Z_Img = document.getElementById("Z_PlaneArt") as HTMLImageElement | null;
-                const Z_Info = document.getElementById("Z_PlaneInfo");
-                const Z_By = document.getElementById("Z_PlaneBy") as HTMLAnchorElement | null;
-                const Z_Link = document.getElementById("Z_PlaneLink") as HTMLAnchorElement | null;
-                if (!Z_Fig || !Z_Img || !Z_Info || !Z_By || !Z_Link) return;
-                let Z_Reg = "";
-                let Z_Day = "";
-                try {
-                    const Z_R = await fetch("/api/plane");
-                    if (!Z_R.ok) return;
-                    const Z_P = (await Z_R.json()) as { reg?: string; day?: string };
-                    Z_Reg = Z_P?.reg ?? "";
-                    Z_Day = Z_P?.day ?? "";
-                    if (!Z_Reg || !Z_Day) return;
-                } catch {
-                    return;
-                }
-                const Z_Old = Z_Read<Z_PlaneStored>("Z_Plane");
-                if (Z_Old?.day === Z_Day && Z_Old?.src) {
-                    Z_PlaneShow(
-                        Z_Old.info ?? "",
-                        Z_Old.src,
-                        Z_Old.alt ?? "",
-                        Z_Old.link ?? "",
-                        Z_Old.by ?? "",
-                    );
-                    return;
-                }
-                const Z_File = Z_Wiki[Z_Reg];
-                if (!Z_File) return;
-                let Z_Page: Z_CommonsPage | undefined;
-                try {
-                    const Z_Q = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(Z_File)}&prop=imageinfo&iiprop=url|size|extmetadata&iiurlwidth=1280&format=json&origin=*`;
-                    const Z_Cr = await fetch(Z_Q);
-                    if (!Z_Cr.ok) return;
-                    const Z_J = (await Z_Cr.json()) as Z_Commons;
-                    Z_Page = Object.values(Z_J?.query?.pages ?? {})[0];
-                } catch {
-                    return;
-                }
-                const Z_Info0 = Z_Page?.imageinfo?.[0];
-                const Z_Src = Z_Info0?.thumburl ?? Z_Info0?.url;
-                if (!Z_Src) return;
-                const Z_RawBy = String(Z_Info0?.extmetadata?.Artist?.value ?? "");
-                const Z_ByV = Z_RawBy.replace(/<[^>]*>/g, "").trim() || "Wikimedia Commons";
-                const Z_Lic = Z_Info0?.extmetadata?.LicenseShortName?.value ?? "";
-                const Z_ByLine = Z_Lic ? `${Z_ByV} (${Z_Lic})` : Z_ByV;
-                const Z_Href = Z_Info0?.descriptionurl ?? "";
-                Z_PlaneShow(Z_Reg, Z_Src, Z_Reg, Z_Href, Z_ByLine);
-                Z_Write("Z_Plane", {
-                    day: Z_Day,
-                    info: Z_Reg,
-                    src: Z_Src,
-                    alt: Z_Reg,
-                    link: Z_Href,
-                    by: Z_ByLine,
-                });
+                const Z_Res = await fetch("/api/listening");
+                if (!Z_Res.ok) return;
+                Z_Show((await Z_Res.json()) as Z_TrackJson);
             } catch {}
         }
-
-        function Z_PlaneShow(
-            Z_InfoV: string,
-            Z_Src: string,
-            Z_Alt: string,
-            Z_Href: string,
-            Z_ByV: string,
-        ) {
+async function Z_Plane() {
             const Z_Fig = document.getElementById("Z_PlaneFig");
             const Z_Img = document.getElementById("Z_PlaneArt") as HTMLImageElement | null;
             const Z_Info = document.getElementById("Z_PlaneInfo");
             const Z_By = document.getElementById("Z_PlaneBy") as HTMLAnchorElement | null;
             const Z_Link = document.getElementById("Z_PlaneLink") as HTMLAnchorElement | null;
             if (!Z_Fig || !Z_Img || !Z_Info || !Z_By || !Z_Link) return;
-            Z_Info.textContent = Z_InfoV;
-            Z_Img.src = Z_Src;
-            Z_Img.alt = Z_Alt;
-            if (Z_Href) Z_Link.href = Z_Href;
-            if (Z_ByV && Z_Href) {
-                Z_By.textContent = `photo: ${Z_ByV}`;
-                Z_By.href = Z_Href;
-            }
-            Z_Fig.hidden = false;
-        }
 
-        async function Z_Poll(Z_Fresh = false) {
-            if (document.hidden) return;
-            const Z_Local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
-            if (!Z_Local) {
-                try {
-                    const Z_Api = await fetch(
-                        Z_Fresh ? `/api/listening?t=${Date.now()}` : "/api/listening",
-                    );
-                    if (Z_Api.ok) {
-                        const Z_J = (await Z_Api.json()) as Z_TrackJson;
-                        if (Z_J?.song) {
-                            Z_Live = !!Z_J.live;
-                            Z_Write(Z_Key, {
-                                song: Z_J.song,
-                                artist: Z_J.artist ?? "",
-                                art: Z_J.art ?? "",
-                                id: Z_J.id ?? "",
-                                t: Z_J.t ?? Date.now(),
-                            });
-                            Z_Show(
-                                Z_J.song,
-                                Z_J.artist ?? "",
-                                Z_J.art ?? "",
-                                Z_J.id ?? "",
-                                Z_J.live ? "listening now" : "listened " + Z_Ago(Z_J.t ?? 0),
-                            );
-                            return;
-                        }
-                    }
-                } catch {}
-            }
             try {
-                const Z_Res = await fetch("https://api.lanyard.rest/v1/users/1007939118925361212");
+                const Z_Res = await fetch("/api/plane");
                 if (!Z_Res.ok) return;
-                const Z_Body = (await Z_Res.json()) as { data?: Z_Lanyard };
-                Z_Render(Z_Body?.data);
+                const Z_PlaneData = (await Z_Res.json()) as Z_PlaneJson;
+                const Z_Src = Z_Url(Z_PlaneData.src);
+                const Z_Href = Z_Url(Z_PlaneData.link);
+                if (!Z_Src || !Z_PlaneData.reg) return;
+
+                Z_Img.src = Z_Src;
+                Z_Img.alt = Z_PlaneData.alt ?? Z_PlaneData.reg;
+                Z_Info.textContent = Z_PlaneData.reg;
+                if (Z_Href) {
+                    Z_Link.href = Z_Href;
+                    Z_By.href = Z_Href;
+                }
+                Z_By.textContent = Z_PlaneData.by ? `photo: ${Z_PlaneData.by}` : "";
+                Z_Fig.hidden = false;
             } catch {}
         }
 
-        function Z_Sock() {
-            let Z_Ws: WebSocket | null = null;
-            let Z_Beat = 0;
-            try {
-                Z_Ws = new WebSocket("wss://api.lanyard.rest/socket");
-            } catch {
-                return;
-            }
-            Z_Ws.onmessage = (Z_Ev) => {
-                let Z_Msg: Z_WsMsg | null = null;
-                try {
-                    Z_Msg = JSON.parse(Z_Ev.data) as Z_WsMsg;
-                } catch {
-                    return;
-                }
-                if (Z_Msg.op === 1) {
-                    const Z_Ms = Z_Msg.d?.heartbeat_interval ?? 30000;
-                    window.clearInterval(Z_Beat);
-                    Z_Beat = window.setInterval(() => {
-                        Z_Ws?.send(JSON.stringify({ op: 3 }));
-                    }, Z_Ms);
-                    Z_Ws?.send(
-                        JSON.stringify({ op: 2, d: { subscribe_to_id: "1007939118925361212" } }),
-                    );
-                } else if (
-                    Z_Msg.op === 0 &&
-                    (Z_Msg.t === "INIT_STATE" || Z_Msg.t === "PRESENCE_UPDATE")
-                ) {
-                    Z_Poll(true);
-                }
-            };
-            Z_Ws.onclose = () => {
-                window.clearInterval(Z_Beat);
-                window.setTimeout(Z_Sock, 10000);
-            };
-        }
-
-        Z_Sock();
-        Z_Poll(true);
+        Z_Listening();
         Z_Plane();
-        window.setInterval(Z_Poll, 60000);
-        window.setInterval(Z_Tick, 30000);
+        window.setInterval(Z_Listening, 60000);
         document.addEventListener("visibilitychange", () => {
-            if (!document.hidden) Z_Poll(true);
+            if (!document.hidden) Z_Listening();
         });
     </script>
 </Layout>

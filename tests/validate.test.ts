@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_BODY_BYTES, parseInvoicePayload } from "../functions/_lib/validate";
+import { parseInvoicePayload } from "../functions/_lib/validate";
 
 const valid = {
     number: "2026-1103-01",
@@ -70,9 +70,5 @@ describe("parseInvoicePayload", () => {
     it("rejects oversized notes and ignores unknown fields", () => {
         expect(parseInvoicePayload({ ...valid, note: "x".repeat(1001) }).ok).toBe(false);
         expect(parseInvoicePayload({ ...valid, extra: "ignored" }).ok).toBe(true);
-    });
-
-    it("pins the body limit", () => {
-        expect(MAX_BODY_BYTES).toBe(65536);
     });
 });

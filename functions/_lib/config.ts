@@ -1,5 +1,4 @@
 export const CONFIG = {
-    businessName: "iflex0x",
     email: "ad@iflex0x.com",
     paypalHandle: "iflex8",
     siteUrl: "https://iflex0x.com",

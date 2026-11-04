@@ -38,17 +38,20 @@ describe("renderAdminList", () => {
         expect(html).toContain("https://invoice.iflex0x.com/i/AAAAAAAAAAAAAAAAAAAAAA");
         expect(html).toContain("/admin/invoice/id-1");
         expect(html).toContain("ad@iflex0x.com");
+        expect(html).toContain('id="msg"');
     });
 });
 
 describe("renderAdminNew", () => {
     it("renders the form with the default number", () => {
-        const html = renderAdminNew({ nonce: "abc123", today: "2026-11-03", defaultNumber: "2026-1103-01" });
+        const html = renderAdminNew({ nonce: "abc123", defaultNumber: "2026-1103-01" });
         expect(html).toContain('name="number"');
         expect(html).toContain("2026-1103-01");
         expect(html).toContain('name="clientName"');
         expect(html).toContain('id="items"');
         expect(html).toContain('id="add-item"');
+        expect(html).toContain('method="post"');
+        expect(html).toContain('id="msg"');
     });
 });
 
@@ -59,6 +62,9 @@ describe("renderAdminDetail", () => {
         expect(html).toContain("mark paid");
         expect(html).toContain("void");
         expect(html).toContain('name="number"');
+        expect(html).toContain('data-id="id-1"');
+        expect(html).toContain('id="msg"');
+        expect(html).toContain('data-status="due"');
     });
 
     it("shows mark open and no edit form on a paid invoice", () => {

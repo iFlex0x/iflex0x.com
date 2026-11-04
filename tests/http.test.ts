@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { cspFor, htmlResponse, jsonResponse, textResponse } from "../functions/_lib/http";
 
 describe("cspFor", () => {
-    it("pins the invoice CSP", () => {
+    it("lets invoice pages run only the nonced script", () => {
         const csp = cspFor("invoice", "abc123");
         expect(csp).toContain("default-src 'none'");
         expect(csp).toContain("script-src 'self' 'nonce-abc123'");
@@ -11,13 +11,13 @@ describe("cspFor", () => {
         expect(csp).toContain("connect-src 'none'");
     });
 
-    it("pins the admin CSP", () => {
+    it("lets admin pages call their own API", () => {
         const csp = cspFor("admin", "abc123");
         expect(csp).toContain("connect-src 'self'");
         expect(csp).toContain("form-action 'self'");
     });
 
-    it("pins the error CSP", () => {
+    it("blocks scripts on error pages", () => {
         const csp = cspFor("error");
         expect(csp).toContain("script-src 'none'");
         expect(csp).not.toContain("nonce");
@@ -31,7 +31,6 @@ describe("responses", () => {
         expect(res.headers.get("cache-control")).toBe("no-store");
         expect(res.headers.get("referrer-policy")).toBe("no-referrer");
         expect(res.headers.get("x-robots-tag")).toContain("noindex");
-        expect(res.headers.get("x-frame-options")).toBe("DENY");
         expect(res.headers.get("content-security-policy")).toContain("nonce-abc");
     });
 

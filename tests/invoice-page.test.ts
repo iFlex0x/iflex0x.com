@@ -71,9 +71,14 @@ describe("renderInvoicePage", () => {
         expect(html).toContain("&lt;script&gt;");
     });
 
-    it("keeps the print button hidden without JS", () => {
+    it("keeps the print button hidden until the script reveals it", () => {
         const html = renderInvoicePage(base, opts);
-        expect(html).toContain('id="print"');
-        expect(html).toContain("hidden");
+        expect(html).toMatch(/id="print"[^>]*hidden/);
+    });
+
+    it("ships the QR at the rendered size", () => {
+        const html = renderInvoicePage(base, opts);
+        expect(html).toContain('width="200" height="200"');
+        expect(html).not.toContain("the QR opens PayPal");
     });
 });
