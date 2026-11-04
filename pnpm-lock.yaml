@@ -17,6 +17,9 @@ importers:
       jose:
         specifier: ^6.2.15
         version: 6.2.15
+      uqr:
+        specifier: ^0.1.3
+        version: 0.1.3
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.10
@@ -2332,6 +2335,9 @@ packages:
         optional: true
       uploadthing:
         optional: true
+
+  uqr@0.1.3:
+    resolution: {integrity: sha512-0rjE8iEJe4YmT9TOhwsZtqCMRLc5DXZUI2UEYUUg63ikBkqqE5EYWaI0etFe/5KUcmcYwLih2RND1kq+hrUJXA==}
 
   vfile-location@5.0.3:
     resolution: {integrity: sha512-5yXvWDEgqeiYiBe1lbxYF7UMAIm/IcopxMHrMQDq3nvKcjPKIhZklUKL+AE7J7uApI4kwe2snsK+eI6UTj9EHg==}
@@ -5043,6 +5049,8 @@ snapshots:
       node-fetch-native: 1.6.7
       ofetch: 1.5.1
       ufo: 1.6.4
+
+  uqr@0.1.3: {}
 
   vfile-location@5.0.3:
     dependencies:

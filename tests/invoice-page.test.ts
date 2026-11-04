@@ -45,6 +45,7 @@ describe("renderInvoicePage", () => {
         expect(html).toContain("$100.00");
         expect(html).toContain(`https://paypal.me/${CONFIG.paypalHandle}/100.00USD`);
         expect(html).toContain('data-status="due"');
+        expect(html).toContain('class="qr"');
         expect(html).toContain("03 NOV 2026");
     });
 
@@ -60,15 +61,16 @@ describe("renderInvoicePage", () => {
     it("hides payment on paid invoices", () => {
         const html = renderInvoicePage({ ...base, status: "paid", paid_on: issued }, opts);
         expect(html).toContain('data-status="paid"');
-        expect(html).toContain("paid on 03 NOV 2026");
-        expect(html).not.toContain("paypal.me");
-        expect(html).not.toContain("qr.png");
+        expect(html).toContain("<b>Paid</b> 03 NOV 2026");
+        expect(html).not.toContain("https://paypal.me/");
+        expect(html).not.toContain('class="qr"');
     });
 
     it("hides the payment card on void invoices", () => {
         const html = renderInvoicePage({ ...base, status: "void" }, opts);
         expect(html).toContain('data-status="void"');
         expect(html).not.toContain("paypal.me");
+        expect(html).not.toContain('class="qr"');
     });
 
     it("hides payment when the total is zero", () => {
@@ -77,7 +79,7 @@ describe("renderInvoicePage", () => {
             opts,
         );
         expect(html).not.toContain("paypal.me");
-        expect(html).not.toContain("qr.png");
+        expect(html).not.toContain('class="qr"');
     });
 
     it("marks an overdue invoice", () => {
@@ -107,9 +109,20 @@ describe("renderInvoicePage", () => {
         expect(html).toMatch(/id="print"[^>]*hidden/);
     });
 
-    it("ships the QR at its real size", () => {
+    it("generates the QR inline from the pay url", () => {
         const html = renderInvoicePage(base, opts);
-        expect(html).toContain('width="240" height="240"');
-        expect(html).not.toContain("the QR opens PayPal");
+        expect(html).toContain('class="qr"');
+        expect(html).toContain('role="img"');
+        expect(html).toContain('aria-label="PayPal QR code"');
+        expect(html).toContain('viewBox="0 0 ');
+        expect(html).toContain('shape-rendering="crispEdges"');
+        expect(html).not.toContain("qr.png");
+    });
+
+    it("uses the site card heads on every card", () => {
+        const html = renderInvoicePage(base, opts);
+        expect(html.match(/class="chip"/g)?.length).toBe(5);
+        expect(html).toContain('class="doc-bottom"');
+        expect(html).toContain('id="from-heading"');
     });
 });

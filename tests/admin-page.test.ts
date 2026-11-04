@@ -48,6 +48,8 @@ describe("renderAdminList", () => {
         expect(html).toContain('href="/admin/invoice/id-1"');
         expect(html).toContain(CONFIG.email);
         expect(html).toContain('id="msg"');
+        expect(html).toContain('class="page-head"');
+        expect(html).toContain('id="list-heading"');
     });
 });
 
@@ -62,6 +64,7 @@ describe("renderAdminNew", () => {
         expect(html).toContain('id="add-item"');
         expect(html).toContain('method="post"');
         expect(html).toContain('id="msg"');
+        expect(html.match(/class="chip"/g)?.length).toBe(4);
     });
 });
 
