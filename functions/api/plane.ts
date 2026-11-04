@@ -28,6 +28,7 @@ const FLEET: Fleet[] = [
     { reg: "VH-OQA", file: "File:Qantas a380 vh-oqa takeoff heathrow arp.jpg" },
     { reg: "D-ABYT", file: "File:D-ABYT@HKG (20190222160855).jpg" },
     { reg: "PH-BVA", file: "File:KLM B777-306ER (PH-BVA) at Amsterdam Airport Schiphol (1).jpg" },
+    { reg: "N722BD", file: "File:N722BD Sint Maarten (3).jpg" }, // RIP to all 9 crew and passengers of the crash.
     { reg: "A7-ANB", file: "File:A7-ANB 09072018LHR (29510026258).jpg" },
     {
         reg: "TF-AAK",
