@@ -3,7 +3,8 @@ import { formatDisplayDate } from "./dates";
 import { shownStatus } from "./status";
 import { escapeHtml, preserveLines } from "./html";
 import { pageShell } from "./layout";
-import { CONFIG, SITE_URL } from "./config";
+import { CONFIG, SITE_URL, INVOICE_URL } from "./config";
+import { invoiceHead } from "./embed";
 import { parseBody, parseLines } from "./db";
 import { chip, statusTag } from "./ui";
 import { qrSvg } from "./qr";
@@ -142,6 +143,7 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
         footer: "document",
         footerMeta: { number: row.number, expiry: formatDisplayDate(row.expires_on) },
         scripts: ["/invoice/invoice.js"],
-        head: '<link rel="stylesheet" href="/invoice/invoice.css">',
+        head: `<link rel="stylesheet" href="/invoice/invoice.css">
+${invoiceHead(`${INVOICE_URL}/i/${row.token}`)}`,
     });
 }

@@ -3,12 +3,14 @@ import "../styles/global.css";
 import "@fontsource/atkinson-hyperlegible/400.css";
 import "@fontsource/atkinson-hyperlegible/700.css";
 import { CONFIG } from "../../functions/_lib/config";
+import { siteEmbed } from "../../functions/_lib/embed";
 
 export interface Props {
     title: string;
     description: string;
+    embed?: boolean;
 }
-const { title, description } = Astro.props;
+const { title, description, embed = false } = Astro.props;
 const Z_Year = new Date().getFullYear();
 ---
 
@@ -25,10 +27,14 @@ const Z_Year = new Date().getFullYear();
         <link rel="preconnect" href="https://media.iflex0x.com" />
         <title>{title}</title>
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="iflex0x.com" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={Astro.url} />
-        <meta property="og:image" content="https://media.iflex0x.com/favicon.png" />
+        <meta property="og:image" content="https://media.iflex0x.com/logo.png" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:image" content="https://media.iflex0x.com/logo.png" />
+        {embed && <Fragment set:html={siteEmbed()} />}
         <meta name="darkreader-lock" />
         <meta name="color-scheme" content="dark light" />
         <script is:inline>
