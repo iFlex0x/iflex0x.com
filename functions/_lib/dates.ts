@@ -1,9 +1,10 @@
-const TIME_ZONE = "Europe/Copenhagen";
+import { CONFIG } from "./config";
+
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
 export function todayIso(now: Date = new Date()): string {
     const parts = new Intl.DateTimeFormat("en-CA", {
-        timeZone: TIME_ZONE,
+        timeZone: CONFIG.timeZone,
         year: "numeric",
         month: "2-digit",
         day: "2-digit",

@@ -1,16 +1,11 @@
-import { getById, updateInvoice } from "../../../_lib/db";
+import { getById, isUniqueNumberError, updateInvoice } from "../../../_lib/db";
 import { parseInvoicePayload, MAX_BODY_BYTES } from "../../../_lib/validate";
 import { readJson } from "../../../_lib/request";
 import { jsonResponse, textResponse } from "../../../_lib/http";
 import type { Env } from "../../../_lib/types";
 
-function isUniqueNumberError(error: unknown): boolean {
-    return String(error).includes("UNIQUE constraint failed: invoices.number");
-}
-
 export const onRequestPut: PagesFunction<Env> = async (ctx) => {
-    const id = ctx.params.id;
-    if (typeof id !== "string") return jsonResponse({ error: "not found" }, 404);
+    const id = String(ctx.params.id);
 
     const raw = await readJson(ctx.request, MAX_BODY_BYTES);
     if (!raw.ok) return raw.response;
@@ -40,7 +35,7 @@ export const onRequestPut: PagesFunction<Env> = async (ctx) => {
         return jsonResponse({ ok: true, id });
     } catch (error) {
         if (isUniqueNumberError(error)) return jsonResponse({ error: "number already used" }, 409);
-        console.error("invoice update failed", { number: parsed.value.number, code: "update" });
+        console.error("invoice update failed", error);
         return jsonResponse({ error: "update failed" }, 500);
     }
 };

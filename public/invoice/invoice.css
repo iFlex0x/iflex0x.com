@@ -1,5 +1,6 @@
 .doc {
-    width: 792px;
+    width: 100%;
+    max-width: 792px;
     margin: 0 auto;
     padding: 32px 24px 64px;
 }
@@ -41,42 +42,8 @@
     color: var(--Z_Mute);
 }
 
-.status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+.doc-meta .status {
     margin-top: 10px;
-    font-size: 12px;
-    color: var(--Z_Link);
-}
-
-.status::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--Z_Accent);
-    flex-shrink: 0;
-}
-
-.status.overdue {
-    color: var(--Z_Accent);
-}
-
-.status.paid {
-    color: var(--Z_Paid);
-}
-
-.status.paid::before {
-    background: var(--Z_PaidDot);
-}
-
-.status.void {
-    color: var(--Z_Mute);
-}
-
-.status.void::before {
-    background: var(--Z_Mute);
 }
 
 .grid {
@@ -88,6 +55,13 @@
 
 .grid .card p {
     color: var(--Z_Mute);
+}
+
+.client-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--Z_Ink);
+    overflow-wrap: anywhere;
 }
 
 .items {
@@ -152,12 +126,11 @@
 }
 
 .qr {
-    width: 72px;
-    height: 72px;
+    width: 200px;
+    height: 200px;
     display: block;
     margin-top: 12px;
     background: #ffffff;
-    padding: 6px;
     border-radius: 6px;
 }
 
@@ -193,9 +166,19 @@
     padding-top: 24px;
 }
 
+.doc-foot button {
+    background: none;
+    border: 1px solid var(--Z_Line);
+    border-radius: 8px;
+    color: var(--Z_Mute);
+    font: inherit;
+    font-size: 12px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
 @media (max-width: 700px) {
     .doc {
-        width: 100%;
         padding: 24px 16px 48px;
     }
 
@@ -231,7 +214,7 @@
     }
 
     .doc {
-        width: auto;
+        max-width: none;
         padding: 0;
     }
 
@@ -246,10 +229,7 @@
         filter: brightness(0);
     }
 
-    .status,
-    .status.overdue,
-    .status.paid,
-    .status.void {
+    .status {
         color: #000000;
     }
 

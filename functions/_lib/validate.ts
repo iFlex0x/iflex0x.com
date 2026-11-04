@@ -22,12 +22,13 @@ function text(value: unknown): string | null {
     return typeof value === "string" ? value.trim() : null;
 }
 
-function decimal(value: unknown, scale: number): number | null {
+function decimal(value: unknown): number | null {
     if (typeof value !== "string" && typeof value !== "number") return null;
     const raw = String(value).trim();
     if (!DECIMAL_RE.test(raw)) return null;
     const [whole, fraction = ""] = raw.split(".");
-    const amount = Number(whole) * scale + Number(fraction.padEnd(2, "0"));
+    const amount = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
+
     return Number.isSafeInteger(amount) ? amount : null;
 }
 
@@ -81,19 +82,19 @@ export function parseInvoicePayload(raw: unknown): ParseResult {
         if (!title || title.length > 120) return fail("invalid item title");
         const desc = text(item.desc) ?? "";
         if (desc.length > 300) return fail("item description is too long");
-        const qtyHundredths = decimal(item.qty, 100);
+        const qtyHundredths = decimal(item.qty);
         if (qtyHundredths === null || qtyHundredths < 1 || qtyHundredths > 100000) return fail("invalid quantity");
-        const rateCents = decimal(item.rate, 100);
+        const rateCents = decimal(item.rate);
         if (rateCents === null || rateCents < 0 || rateCents > 100000000) return fail("invalid rate");
         items.push({ title, desc, qtyHundredths, rateCents });
     }
 
-    const discountCents = decimal(input.discount ?? "0", 100);
+    const discountCents = decimal(input.discount ?? "0");
     if (discountCents === null || discountCents < 0) return fail("invalid discount");
     const discountLabel = text(input.discountLabel) ?? "";
     if (discountLabel.length > 40) return fail("discount label is too long");
 
-    const taxBp = decimal(input.taxRate ?? "0", 100);
+    const taxBp = decimal(input.taxRate ?? "0");
     if (taxBp === null || taxBp < 0 || taxBp > 10000) return fail("invalid tax rate");
 
     const note = text(input.note) ?? "";

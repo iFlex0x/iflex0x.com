@@ -36,7 +36,7 @@ function siteFooter(): string {
     <div class="foot-row">
         <span>iflex0x</span>
         <a href="https://github.com/iFlex0x/iflex0x.com" rel="noopener noreferrer">source</a>
-        <a href="mailto:${CONFIG.email}">mail</a>
+        <a href="mailto:${escapeHtml(CONFIG.email)}">mail</a>
         <span class="Z_Zulu" id="Z_Zulu">--:--:--</span>
     </div>
     <div class="foot-theme">${THEME_BUTTON}</div>
@@ -50,7 +50,7 @@ function siteFooter(): string {
 function documentFooter(meta: { number: string; expiry: string }): string {
     return `<footer class="doc-foot">
     <div class="foot-row">
-        <span>iflex0x / <a href="${CONFIG.siteUrl}">iflex0x.com</a></span>
+        <span>iflex0x / <a href="${escapeHtml(CONFIG.siteUrl)}">iflex0x.com</a></span>
         <span class="Z_Zulu">${escapeHtml(meta.number)}</span>
         <span class="Z_Zulu">link valid until ${escapeHtml(meta.expiry)}</span>
     </div>
@@ -62,14 +62,20 @@ function documentFooter(meta: { number: string; expiry: string }): string {
 }
 
 export function pageShell(opts: PageShellOptions): string {
-    const scripts = (opts.scripts ?? []).map((src) => `<script src="${src}" defer></script>`).join("");
+    const showTheme = opts.showTheme ?? true;
+    const scripts = [
+        ...(showTheme ? ["/invoice/theme.js"] : []),
+        ...(opts.scripts ?? []),
+    ]
+        .map((src) => `<script src="${src}" defer></script>`)
+        .join("");
     const footer =
         opts.footer === "site"
             ? siteFooter()
             : opts.footer === "document"
               ? documentFooter(opts.footerMeta ?? { number: "", expiry: "" })
               : "";
-    const themeScript = (opts.showTheme ?? true) ? `<script nonce="${opts.nonce}">${PREPAINT}</script>` : "";
+    const themeScript = showTheme ? `<script nonce="${opts.nonce}">${PREPAINT}</script>` : "";
 
     const html = `<!doctype html>
 <html lang="en">
@@ -77,8 +83,6 @@ export function pageShell(opts: PageShellOptions): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(opts.title)}</title>
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-<meta name="referrer" content="no-referrer">
 <meta name="darkreader-lock">
 <meta name="theme-color" content="#070707">
 <link rel="icon" href="/favicon.png">
@@ -106,11 +110,19 @@ function errorPage(title: string, message: string, status: number): Response {
 }
 
 export function notFoundPage(): Response {
-    return errorPage("not found", `this link doesn't point to an invoice. <a href="${CONFIG.siteUrl}">iflex0x.com</a>`, 404);
+    return errorPage(
+        "not found",
+        `this link doesn't point to an invoice. <a href="${escapeHtml(CONFIG.siteUrl)}">iflex0x.com</a>`,
+        404,
+    );
 }
 
 export function gonePage(): Response {
-    return errorPage("link expired", `ask <a href="mailto:${CONFIG.email}">${CONFIG.email}</a> for a fresh one.`, 410);
+    return errorPage(
+        "link expired",
+        `ask <a href="mailto:${escapeHtml(CONFIG.email)}">${escapeHtml(CONFIG.email)}</a> for a fresh one.`,
+        410,
+    );
 }
 
 export function forbiddenPage(): Response {

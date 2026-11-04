@@ -8,11 +8,6 @@ const SECURITY_HEADERS: Record<string, string> = {
     "Referrer-Policy": "no-referrer",
     "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
     "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY",
-    "X-Permitted-Cross-Domain-Policies": "none",
-    "Cross-Origin-Opener-Policy": "same-origin",
-    "Cross-Origin-Resource-Policy": "same-origin",
-    "Permissions-Policy": "geolocation=(), camera=(), microphone=(), payment=()",
 };
 
 export function makeNonce(): string {

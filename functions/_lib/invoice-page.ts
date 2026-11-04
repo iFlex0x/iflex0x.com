@@ -1,4 +1,4 @@
-import { computeTotals, formatUsd, type InvoiceBody } from "./money";
+import { computeTotals, formatNumber, formatUsd, type InvoiceBody } from "./money";
 import { formatDisplayDate } from "./dates";
 import { shownStatus } from "./status";
 import { escapeHtml, preserveLines } from "./html";
@@ -35,7 +35,7 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
     </section>
     <section class="card" aria-labelledby="bill-heading">
         <h2 id="bill-heading">bill to</h2>
-        <div id="Z_Song">${escapeHtml(row.client_name)}</div>
+        <div class="client-name">${escapeHtml(row.client_name)}</div>
         ${row.client_sub ? `<p>${escapeHtml(row.client_sub)}</p>` : ""}
         <p>${lines.map((line) => escapeHtml(line)).join("<br>")}</p>
     </section>
@@ -45,7 +45,7 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
         .map(
             (item) => `<tr>
     <td><strong>${escapeHtml(item.title)}</strong>${item.desc ? `<p>${escapeHtml(item.desc)}</p>` : ""}</td>
-    <td>${(item.qtyHundredths / 100).toFixed(2).replace(/\.?0+$/, "")}</td>
+    <td>${formatNumber(item.qtyHundredths)}</td>
     <td>${formatUsd(item.rateCents)}</td>
     <td>${formatUsd(Math.round((item.qtyHundredths * item.rateCents) / 100))}</td>
 </tr>`,
@@ -67,11 +67,10 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
     <h2 id="pay-heading">payment</h2>
     ${paid ? `<p>paid on ${row.paid_on ? formatDisplayDate(row.paid_on) : ""}</p>` : ""}
     ${!paid && !payable ? `<p>no payment due.</p>` : ""}
-    ${payable ? `<p class="payline">pay <a href="${payUrl}" target="_blank" rel="noopener noreferrer">${formatUsd(totals.totalCents)}</a> to ${CONFIG.email}</p>
+    ${payable ? `<p class="payline">pay <a href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">${formatUsd(totals.totalCents)}</a> to ${escapeHtml(CONFIG.email)}</p>
     <p class="Z_Zulu">reference ${escapeHtml(row.number)}</p>
-    <img class="qr" src="/invoice/qr.png" alt="PayPal QR code" width="240" height="240">
-    <p><a class="paybtn" href="${payUrl}" target="_blank" rel="noopener noreferrer">pay ${formatUsd(totals.totalCents)}</a></p>
-    <p class="Z_Zulu">the QR opens PayPal without an amount. the button carries the exact total.</p>` : ""}
+    <img class="qr" src="/invoice/qr.png" alt="PayPal QR code" width="200" height="200">
+    <p><a class="paybtn" href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">pay ${formatUsd(totals.totalCents)}</a></p>` : ""}
 </section>`;
 
     const totalsRows = [
@@ -80,7 +79,7 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
             ? `<div class="row"><span>discount${body.discountLabel ? ` (${escapeHtml(body.discountLabel)})` : ""}</span><span>-${formatUsd(totals.discountCents)}</span></div>`
             : "",
         totals.taxCents > 0
-            ? `<div class="row"><span>tax ${(body.taxBp / 100).toFixed(2).replace(/\.?0+$/, "")}%</span><span>${formatUsd(totals.taxCents)}</span></div>`
+            ? `<div class="row"><span>tax ${formatNumber(body.taxBp)}%</span><span>${formatUsd(totals.taxCents)}</span></div>`
             : "",
         `<div class="row total"><span>total due</span><span>${formatUsd(totals.totalCents)}</span></div>`,
     ].join("");

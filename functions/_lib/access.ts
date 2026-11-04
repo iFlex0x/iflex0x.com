@@ -15,6 +15,8 @@ function getJwks(teamDomain: string): Jwks {
 }
 
 export async function verifyAccess(request: Request, env: Env): Promise<AccessResult> {
+    if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || !env.ADMIN_EMAIL) return { ok: false, status: 503 };
+
     const url = new URL(request.url);
     if (env.ENVIRONMENT === "dev" && env.DEV_BYPASS_ACCESS === "1" && url.hostname === "localhost") {
         return { ok: true, email: env.ADMIN_EMAIL };

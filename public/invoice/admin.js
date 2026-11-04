@@ -1,27 +1,4 @@
 (() => {
-    const theme = document.getElementById("Z_Theme");
-    const meta = document.querySelector('meta[name="theme-color"]');
-
-    function mode(value) {
-        document.documentElement.classList.toggle("Z_Light", value === "light");
-        if (theme) theme.setAttribute("aria-pressed", String(value === "light"));
-        if (meta) meta.setAttribute("content", value === "light" ? "#e4ddcc" : "#070707");
-    }
-
-    try {
-        mode(localStorage.getItem("Z_Theme") ?? (document.documentElement.classList.contains("Z_Light") ? "light" : "dark"));
-    } catch {
-        mode("dark");
-    }
-
-    theme?.addEventListener("click", () => {
-        const next = document.documentElement.classList.contains("Z_Light") ? "dark" : "light";
-        try {
-            localStorage.setItem("Z_Theme", next);
-        } catch {}
-        mode(next);
-    });
-
     const zulu = document.getElementById("Z_Zulu");
     function clock() {
         if (!zulu) return;
@@ -31,6 +8,11 @@
     }
     clock();
     setInterval(clock, 1000);
+
+    const message = document.getElementById("msg");
+    const say = (text) => {
+        if (message) message.textContent = text;
+    };
 
     const form = document.getElementById("invoice-form");
     const items = document.getElementById("items");
@@ -42,6 +24,12 @@
         if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
         const [whole, fraction = ""] = text.split(".");
         return Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
+    }
+
+    function usd(value) {
+        const whole = Math.floor(value / 100);
+        const rest = String(value % 100).padStart(2, "0");
+        return `$${String(whole).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${rest}`;
     }
 
     function total() {
@@ -59,7 +47,7 @@
     }
 
     function update() {
-        if (preview) preview.textContent = `$${(total() / 100).toFixed(2)}`;
+        if (preview) preview.textContent = usd(total());
     }
 
     function addRow() {
@@ -109,11 +97,6 @@
         };
     }
 
-    function expired() {
-        const message = document.getElementById("msg");
-        if (message) message.textContent = "session expired, reload";
-    }
-
     form?.addEventListener("submit", async (event) => {
         event.preventDefault();
         const data = payload();
@@ -128,7 +111,7 @@
                 body: JSON.stringify(data),
             });
             if (!response.ok) {
-                if (response.status === 403) return expired();
+                if (response.status === 403) return say("session expired, reload");
                 const body = await response.json().catch(() => ({}));
                 throw new Error(body.error ?? "save failed");
             }
@@ -139,8 +122,7 @@
             const result = await response.json();
             location.href = `/admin/invoice/${result.id}`;
         } catch (error) {
-            const message = document.getElementById("msg");
-            if (message) message.textContent = error.message;
+            say(error.message);
         } finally {
             button?.removeAttribute("disabled");
         }
@@ -149,30 +131,37 @@
     document.addEventListener("click", async (event) => {
         const button = event.target.closest("[data-action]");
         if (!button) return;
+        const actions = button.closest(".actions");
+        if (!actions) return;
         const action = button.dataset.action;
         if (["void", "revoke", "rotate"].includes(action) && !confirm(`${action} this invoice?`)) return;
-        const id = new URL(location.href).pathname.split("/").pop();
         try {
-            const response = await fetch(`/admin/api/invoices/${id}/action`, {
+            const response = await fetch(`/admin/api/invoices/${actions.dataset.id}/action`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "X-Admin-Request": "1" },
                 body: JSON.stringify({ action }),
             });
             if (!response.ok) {
-                if (response.status === 403) return expired();
+                if (response.status === 403) return say("session expired, reload");
                 const body = await response.json().catch(() => ({}));
                 throw new Error(body.error ?? "action failed");
             }
             const result = await response.json();
             if (result.url) {
-                const message = document.getElementById("msg");
-                if (message) message.textContent = result.url;
-                await navigator.clipboard?.writeText(result.url).catch(() => {});
+                const link = document.getElementById("invoice-link");
+                if (link) link.value = result.url;
+                let copied = true;
+                try {
+                    await navigator.clipboard.writeText(result.url);
+                } catch {
+                    copied = false;
+                }
+                say(copied ? "new link copied" : "link updated in the field above");
+                return;
             }
             location.reload();
         } catch (error) {
-            const message = document.getElementById("msg");
-            if (message) message.textContent = error.message;
+            say(error.message);
         }
     });
 
@@ -183,12 +172,10 @@
             await navigator.clipboard.writeText(button.dataset.copy);
             button.textContent = "copied";
         } catch {
-            const input = document.createElement("input");
-            input.value = button.dataset.copy;
-            document.body.append(input);
-            input.select();
-            document.execCommand("copy");
-            input.remove();
+            say("copy failed, select the link manually");
         }
+        setTimeout(() => {
+            button.textContent = "copy link";
+        }, 1500);
     });
 })();

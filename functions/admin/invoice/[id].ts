@@ -6,8 +6,7 @@ import { todayIso } from "../../_lib/dates";
 import type { AdminData, Env } from "../../_lib/types";
 
 export const onRequestGet: PagesFunction<Env, string, AdminData> = async (ctx) => {
-    const id = ctx.params.id;
-    const row = typeof id === "string" ? await getById(ctx.env.INVOICES_DB, id) : null;
+    const row = await getById(ctx.env.INVOICES_DB, String(ctx.params.id));
     if (!row) return notFoundPage();
 
     const nonce = makeNonce();

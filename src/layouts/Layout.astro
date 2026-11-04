@@ -129,10 +129,6 @@ const Z_Year = new Date().getFullYear();
             <p class="copyright">© {Z_Year} iflex0x</p>
         </footer>
         <script>
-            document.addEventListener("contextmenu", (Z_E) => {
-                const Z_T = Z_E.target as HTMLElement | null;
-                if (Z_T && Z_T.closest("img, .work")) Z_E.preventDefault();
-            });
             const Z_Zulu = document.getElementById("Z_Zulu");
             function Z_Clock() {
                 if (!Z_Zulu) return;
