@@ -3,15 +3,16 @@ import { escapeHtml } from "./html";
 
 const ACCENT = 12976128;
 const IMAGE = "https://media.iflex0x.com/logo.png";
+const THUMB = "https://media.iflex0x.com/favicon.png";
 
 type Component = Record<string, unknown>;
 
-function link(url: string, label: string): Component {
-    return { type: 2, style: 5, url, label };
+function section(components: Component[], accessory: Component): Component {
+    return { type: 9, components, accessory };
 }
 
-function row(components: Component[]): Component {
-    return { type: 1, components };
+function thumbnail(url: string): Component {
+    return { type: 11, media: { url } };
 }
 
 function text(content: string): Component {
@@ -34,12 +35,17 @@ function script(component: Component): string {
 export function siteEmbed(): string {
     return script(
         container([
-            text("## iflex0x"),
-            text(
-                "content management for youtube creators, end to end.\nthumbnails, edits, production and communities.",
+            section(
+                [
+                    text("## iflex0x"),
+                    text(
+                        "content management for youtube creators, end to end.\nthumbnails, edits, production and communities.",
+                    ),
+                ],
+                thumbnail(THUMB),
             ),
             separator(),
-            row([link("https://github.com/iFlex0x/iflex0x.com", "source")]),
+            text("-# iflex0x.com"),
         ]),
     );
 }
@@ -47,8 +53,7 @@ export function siteEmbed(): string {
 export function invoiceEmbed(): string {
     return script(
         container([
-            text("## invoice"),
-            text("a document from iflex0x.\nopen the link to view it."),
+            section([text("## invoice"), text("a document from iflex0x.")], thumbnail(THUMB)),
             separator(),
             text("-# iflex0x.com"),
         ]),
