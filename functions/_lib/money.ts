@@ -30,18 +30,23 @@ export function computeTotals(body: InvoiceBody): Totals {
         (sum, item) => sum + itemAmountCents(item.qtyHundredths, item.rateCents),
         0,
     );
-    const discountCents = Math.min(Math.max(0, body.discountCents), subtotalCents);
+    const discountCents = body.discountCents;
     const taxableCents = subtotalCents - discountCents;
-    const taxCents = Math.round((taxableCents * body.taxBp) / 10000);
+    const taxCents = Number((BigInt(taxableCents) * BigInt(body.taxBp) + 5000n) / 10000n);
 
-    return { subtotalCents, discountCents, taxableCents, taxCents, totalCents: taxableCents + taxCents };
+    return {
+        subtotalCents,
+        discountCents,
+        taxableCents,
+        taxCents,
+        totalCents: taxableCents + taxCents,
+    };
 }
 
 export function formatUsd(cents: number): string {
     const dollars = Math.floor(cents / 100);
     const rest = String(cents % 100).padStart(2, "0");
     const grouped = String(dollars).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
     return `$${grouped}.${rest}`;
 }
 

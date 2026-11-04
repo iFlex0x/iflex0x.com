@@ -14,41 +14,17 @@
         if (message) message.textContent = text;
     };
 
+    async function readJson(response) {
+        try {
+            return await response.json();
+        } catch {
+            return null;
+        }
+    }
+
     const form = document.getElementById("invoice-form");
     const items = document.getElementById("items");
-    const preview = document.getElementById("total-preview");
     const add = document.getElementById("add-item");
-
-    function cents(value) {
-        const text = String(value ?? "").trim();
-        if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
-        const [whole, fraction = ""] = text.split(".");
-        return Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
-    }
-
-    function usd(value) {
-        const whole = Math.floor(value / 100);
-        const rest = String(value % 100).padStart(2, "0");
-        return `$${String(whole).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${rest}`;
-    }
-
-    function total() {
-        if (!form || !items) return 0;
-        let subtotal = 0;
-        for (const row of items.querySelectorAll("[data-item]")) {
-            const qty = cents(row.querySelector('[name="qty"]')?.value);
-            const rate = cents(row.querySelector('[name="rate"]')?.value);
-            if (qty !== null && rate !== null) subtotal += Math.round((qty * rate) / 100);
-        }
-        const discount = cents(form.querySelector('[name="discount"]')?.value) ?? 0;
-        const tax = cents(form.querySelector('[name="taxRate"]')?.value) ?? 0;
-        const taxable = Math.max(0, subtotal - Math.min(discount, subtotal));
-        return taxable + Math.round((taxable * tax) / 10000);
-    }
-
-    function update() {
-        if (preview) preview.textContent = usd(total());
-    }
 
     function addRow() {
         if (!items) return;
@@ -62,17 +38,13 @@
             <label class="field"><span>rate</span><input class="input" name="rate" value="0.00"></label>
             <button class="btn-danger" type="button" data-remove>remove</button>`;
         items.append(row);
-        update();
     }
 
     add?.addEventListener("click", addRow);
     items?.addEventListener("click", (event) => {
         const button = event.target.closest("[data-remove]");
         if (button) button.closest("[data-item]")?.remove();
-        update();
     });
-    form?.addEventListener("input", update);
-    update();
 
     function payload() {
         if (!form || !items) return null;
@@ -81,7 +53,10 @@
             number: value("number"),
             clientName: value("clientName"),
             clientSub: value("clientSub"),
-            clientLines: value("clientLines").split("\n").map((line) => line.trim()).filter(Boolean),
+            clientLines: value("clientLines")
+                .split("\n")
+                .map((line) => line.trim())
+                .filter(Boolean),
             issuedOn: value("issuedOn"),
             dueOn: value("dueOn") || null,
             items: [...items.querySelectorAll("[data-item]")].map((row) => ({
@@ -105,22 +80,27 @@
         button?.setAttribute("disabled", "disabled");
         const edit = form.dataset.mode === "edit";
         try {
-            const response = await fetch(edit ? `/admin/api/invoices/${form.dataset.id}` : "/admin/api/invoices", {
-                method: edit ? "PUT" : "POST",
-                headers: { "Content-Type": "application/json", "X-Admin-Request": "1" },
-                body: JSON.stringify(data),
-            });
+            const response = await fetch(
+                edit ? `/admin/api/invoices/${form.dataset.id}` : "/admin/api/invoices",
+                {
+                    method: edit ? "PUT" : "POST",
+                    headers: { "Content-Type": "application/json", "X-Admin-Request": "1" },
+                    body: JSON.stringify(data),
+                },
+            );
             if (!response.ok) {
-                if (response.status === 403) return say("session expired, reload");
-                const body = await response.json().catch(() => ({}));
+                const body = (await readJson(response)) ?? {};
+                if (response.status === 403 && body.error === "forbidden")
+                    return say("session expired, reload");
                 throw new Error(body.error ?? "save failed");
             }
-            if (edit) {
-                location.href = `/admin/invoice/${form.dataset.id}`;
-                return;
+            let id = form.dataset.id;
+            if (!edit) {
+                const result = await readJson(response);
+                if (!result?.id) return say("session expired, reload");
+                id = result.id;
             }
-            const result = await response.json();
-            location.href = `/admin/invoice/${result.id}`;
+            location.href = `/admin/invoice/${id}`;
         } catch (error) {
             say(error.message);
         } finally {
@@ -128,13 +108,19 @@
         }
     });
 
+    const CONFIRM = {
+        void: "void this invoice? the client can still read it until the link expires.",
+        revoke: "revoke the link? the client gets a dead link.",
+        rotate: "rotate the link? the old one stops working right away.",
+    };
+
     document.addEventListener("click", async (event) => {
         const button = event.target.closest("[data-action]");
         if (!button) return;
         const actions = button.closest(".actions");
         if (!actions) return;
         const action = button.dataset.action;
-        if (["void", "revoke", "rotate"].includes(action) && !confirm(`${action} this invoice?`)) return;
+        if (CONFIRM[action] && !confirm(CONFIRM[action])) return;
         try {
             const response = await fetch(`/admin/api/invoices/${actions.dataset.id}/action`, {
                 method: "POST",
@@ -142,11 +128,13 @@
                 body: JSON.stringify({ action }),
             });
             if (!response.ok) {
-                if (response.status === 403) return say("session expired, reload");
-                const body = await response.json().catch(() => ({}));
+                const body = (await readJson(response)) ?? {};
+                if (response.status === 403 && body.error === "forbidden")
+                    return say("session expired, reload");
                 throw new Error(body.error ?? "action failed");
             }
-            const result = await response.json();
+            const result = await readJson(response);
+            if (!result) return say("session expired, reload");
             if (result.url) {
                 const link = document.getElementById("invoice-link");
                 if (link) link.value = result.url;

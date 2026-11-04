@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import "@fontsource/atkinson-hyperlegible/400.css";
 import "@fontsource/atkinson-hyperlegible/700.css";
+import { CONFIG } from "../../functions/_lib/config";
 
 export interface Props {
     title: string;
@@ -62,7 +63,7 @@ const Z_Year = new Date().getFullYear();
                 <a href="https://github.com/iFlex0x/iflex0x.com" rel="noopener noreferrer">
                     source
                 </a>
-                <a href="mailto:ad@iflex0x.com">mail</a>
+                <a href={`mailto:${CONFIG.email}`}>mail</a>
                 <span class="Z_Zulu" id="Z_Zulu">
                     --:--:--
                 </span>

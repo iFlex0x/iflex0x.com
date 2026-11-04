@@ -1,32 +1,33 @@
-import { computeTotals, formatNumber, formatUsd, type InvoiceBody } from "./money";
+import { itemAmountCents, formatNumber, formatUsd } from "./money";
 import { formatDisplayDate } from "./dates";
 import { shownStatus } from "./status";
 import { escapeHtml, preserveLines } from "./html";
 import { pageShell } from "./layout";
 import { CONFIG } from "./config";
+import { parseBody, parseLines } from "./db";
 import type { InvoiceRow } from "./types";
 
 export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today: string }): string {
-    const body = JSON.parse(row.body) as InvoiceBody;
-    const lines = JSON.parse(row.client_lines) as string[];
-    const totals = computeTotals(body);
+    const body = parseBody(row);
+    const lines = parseLines(row);
     const status = shownStatus(row, opts.today);
     const paid = status === "paid";
     const voided = status === "void";
-    const payable = !paid && !voided && totals.totalCents > 0;
-    const payUrl = `https://paypal.me/${CONFIG.paypalHandle}/${(totals.totalCents / 100).toFixed(2)}USD`;
+    const payable = !paid && !voided && row.total_cents > 0;
+    const payUrl = `https://paypal.me/${CONFIG.paypalHandle}/${(row.total_cents / 100).toFixed(2)}USD`;
+    const dueText = row.due_on ? formatDisplayDate(row.due_on) : "on receipt";
 
-    const statusLabel = escapeHtml(status);
-    const dueText = row.due_on ? formatDisplayDate(row.due_on) : "ON RECEIPT";
     const header = `<header class="doc-top">
     <img class="doc-logo" src="/logo.png" alt="iflex0x">
     <div class="doc-meta">
         <div class="kicker">invoice</div>
         <div class="doc-number">${escapeHtml(row.number)}</div>
         <div class="doc-dates">issued ${formatDisplayDate(row.issued_on)} / due ${dueText}</div>
-        <div class="status" data-status="${statusLabel}">${statusLabel}</div>
+        <div class="status" data-status="${status}">${status}</div>
     </div>
 </header>`;
+
+    const clientLines = lines.length ? `<p>${lines.map(escapeHtml).join("<br>")}</p>` : "";
 
     const parties = `<div class="grid">
     <section class="card" aria-labelledby="from-heading">
@@ -37,7 +38,7 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
         <h2 id="bill-heading">bill to</h2>
         <div class="client-name">${escapeHtml(row.client_name)}</div>
         ${row.client_sub ? `<p>${escapeHtml(row.client_sub)}</p>` : ""}
-        <p>${lines.map((line) => escapeHtml(line)).join("<br>")}</p>
+        ${clientLines}
     </section>
 </div>`;
 
@@ -47,7 +48,7 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
     <td><strong>${escapeHtml(item.title)}</strong>${item.desc ? `<p>${escapeHtml(item.desc)}</p>` : ""}</td>
     <td>${formatNumber(item.qtyHundredths)}</td>
     <td>${formatUsd(item.rateCents)}</td>
-    <td>${formatUsd(Math.round((item.qtyHundredths * item.rateCents) / 100))}</td>
+    <td>${formatUsd(itemAmountCents(item.qtyHundredths, item.rateCents))}</td>
 </tr>`,
         )
         .join("");
@@ -65,23 +66,27 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
         ? ""
         : `<section class="card pay" aria-labelledby="pay-heading">
     <h2 id="pay-heading">payment</h2>
-    ${paid ? `<p>paid on ${row.paid_on ? formatDisplayDate(row.paid_on) : ""}</p>` : ""}
+    ${paid ? `<p>paid on ${formatDisplayDate(row.paid_on!)}</p>` : ""}
     ${!paid && !payable ? `<p>no payment due.</p>` : ""}
-    ${payable ? `<p class="payline">pay <a href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">${formatUsd(totals.totalCents)}</a> to ${escapeHtml(CONFIG.email)}</p>
-    <p class="Z_Zulu">reference ${escapeHtml(row.number)}</p>
-    <img class="qr" src="/invoice/qr.png" alt="PayPal QR code" width="200" height="200">
-    <p><a class="paybtn" href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">pay ${formatUsd(totals.totalCents)}</a></p>` : ""}
+    ${
+        payable
+            ? `<p class="payline">pay <a href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">${formatUsd(row.total_cents)}</a> to ${escapeHtml(CONFIG.email)}</p>
+    <p class="muted">reference ${escapeHtml(row.number)}</p>
+    <img class="qr" src="/invoice/qr.png" alt="PayPal QR code" width="240" height="240">
+    <p><a class="paybtn" href="${escapeHtml(payUrl)}" target="_blank" rel="noopener noreferrer">pay ${formatUsd(row.total_cents)}</a></p>`
+            : ""
+    }
 </section>`;
 
     const totalsRows = [
-        `<div class="row"><span>subtotal</span><span>${formatUsd(totals.subtotalCents)}</span></div>`,
-        totals.discountCents > 0
-            ? `<div class="row"><span>discount${body.discountLabel ? ` (${escapeHtml(body.discountLabel)})` : ""}</span><span>-${formatUsd(totals.discountCents)}</span></div>`
+        `<div class="row"><span>subtotal</span><span>${formatUsd(row.subtotal_cents)}</span></div>`,
+        row.discount_cents > 0
+            ? `<div class="row"><span>discount${body.discountLabel ? ` (${escapeHtml(body.discountLabel)})` : ""}</span><span>-${formatUsd(row.discount_cents)}</span></div>`
             : "",
-        totals.taxCents > 0
-            ? `<div class="row"><span>tax ${formatNumber(body.taxBp)}%</span><span>${formatUsd(totals.taxCents)}</span></div>`
+        row.tax_cents > 0
+            ? `<div class="row"><span>tax ${formatNumber(body.taxBp)}%</span><span>${formatUsd(row.tax_cents)}</span></div>`
             : "",
-        `<div class="row total"><span>total due</span><span>${formatUsd(totals.totalCents)}</span></div>`,
+        `<div class="row total"><span>total due</span><span>${formatUsd(row.total_cents)}</span></div>`,
     ].join("");
 
     const totalsSection = `<section class="card totals" aria-labelledby="totals-heading">
@@ -94,7 +99,7 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
         : "";
 
     return pageShell({
-        title: "invoice / iFlex",
+        title: `invoice ${row.number} / iflex0x`,
         nonce: opts.nonce,
         kind: "invoice",
         body: `<main id="main" class="doc">${header}${parties}${items}${payment}${totalsSection}${notes}</main>`,

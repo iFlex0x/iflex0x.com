@@ -23,4 +23,10 @@ describe("readJson", () => {
         expect(result.ok).toBe(false);
         if (!result.ok) expect(result.response.status).toBe(413);
     });
+
+    it("counts bytes, not characters", async () => {
+        const result = await readJson(req("é".repeat(600)), 1024);
+        expect(result.ok).toBe(false);
+        if (!result.ok) expect(result.response.status).toBe(413);
+    });
 });

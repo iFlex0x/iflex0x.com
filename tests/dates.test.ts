@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { addDaysIso, formatDisplayDate, isExpired, isOverdue, todayIso } from "../functions/_lib/dates";
+import {
+    addDaysIso,
+    formatDisplayDate,
+    isExpired,
+    isOverdue,
+    todayIso,
+} from "../functions/_lib/dates";
 
 describe("todayIso", () => {
     it("uses Copenhagen, not UTC", () => {

@@ -1,4 +1,5 @@
 import { CONFIG } from "../_lib/config";
+import { getCache } from "../_lib/cache";
 
 type Fleet = { reg: string; file: string };
 
@@ -12,17 +13,26 @@ const FLEET: Fleet[] = [
     { reg: "F-WWEA", file: "File:A380 F-WWEA LEGT 2.jpg" },
     { reg: "F-WXLR", file: "File:F-WXLR, ILA 2024, Schoenefeld (ILA45296).jpg" },
     { reg: "N905NA", file: "File:Shuttle Carrier Aircraft N905NA at Space Center Houston.jpg" },
-    { reg: "N780BA", file: "File:07142018 Boeing Company B744LCF N780BA KPAE NASEDIT2 (43830183822).jpg" },
+    {
+        reg: "N780BA",
+        file: "File:07142018 Boeing Company B744LCF N780BA KPAE NASEDIT2 (43830183822).jpg",
+    },
     { reg: "N787BA", file: "File:N787BA Boeing 787 Boeing Co (7286114022).jpg" },
     { reg: "JA873A", file: "File:JA873A@PEK (20200705130524).jpg" },
-    { reg: "JA789A", file: "File:ANA Boeing 777-300ER; JA789A@HKG;04.08.2011 615ge (6207793648).jpg" },
+    {
+        reg: "JA789A",
+        file: "File:ANA Boeing 777-300ER; JA789A@HKG;04.08.2011 615ge (6207793648).jpg",
+    },
     { reg: "G-EUPJ", file: "File:20251011 British Airways G-EUPJ EGLL.jpg" },
     { reg: "9V-SKA", file: "File:9V-SKA@PEK (20170309171352).jpg" },
     { reg: "VH-OQA", file: "File:Qantas a380 vh-oqa takeoff heathrow arp.jpg" },
     { reg: "D-ABYT", file: "File:D-ABYT@HKG (20190222160855).jpg" },
     { reg: "PH-BVA", file: "File:KLM B777-306ER (PH-BVA) at Amsterdam Airport Schiphol (1).jpg" },
     { reg: "A7-ANB", file: "File:A7-ANB 09072018LHR (29510026258).jpg" },
-    { reg: "TF-AAK", file: "File:Air Atlanta Icelandic Boeing 747-428 TF-AAK \"Ed Force One\" (26808846474).jpg" },
+    {
+        reg: "TF-AAK",
+        file: 'File:Air Atlanta Icelandic Boeing 747-428 TF-AAK "Ed Force One" (26808846474).jpg',
+    },
 ];
 
 type CommonsInfo = {
@@ -35,7 +45,7 @@ type CommonsInfo = {
     };
 };
 
-const CACHE = (caches as unknown as { default: Cache }).default;
+const CACHE = getCache();
 
 async function picture(plane: Fleet) {
     const query = new URL("https://commons.wikimedia.org/w/api.php");
@@ -45,18 +55,21 @@ async function picture(plane: Fleet) {
     query.searchParams.set("iiprop", "url|extmetadata");
     query.searchParams.set("iiurlwidth", "1280");
     query.searchParams.set("format", "json");
-    query.searchParams.set("origin", "*");
 
     const res = await fetch(query, { headers: { "User-Agent": `iflex0x.com (${CONFIG.email})` } });
     if (!res.ok) return null;
 
-    const body = (await res.json()) as { query?: { pages?: Record<string, { imageinfo?: CommonsInfo[] }> } };
+    const body = (await res.json()) as {
+        query?: { pages?: Record<string, { imageinfo?: CommonsInfo[] }> };
+    };
     const info = Object.values(body.query?.pages ?? {})[0]?.imageinfo?.[0];
     if (!info) return null;
     const src = info.thumburl ?? info.url;
     if (!src) return null;
 
-    const artist = String(info.extmetadata?.Artist?.value ?? "").replace(/<[^>]*>/g, "").trim();
+    const artist = String(info.extmetadata?.Artist?.value ?? "")
+        .replace(/<[^>]*>/g, "")
+        .trim();
     const license = info.extmetadata?.LicenseShortName?.value ?? "";
     const by = artist || "Wikimedia Commons";
 
@@ -70,13 +83,15 @@ async function picture(plane: Fleet) {
 }
 
 export const onRequest: PagesFunction = async (ctx) => {
-    const key = new URL(ctx.request.url);
-    const cacheKey = new Request(`${key.origin}${key.pathname}`);
-    const hit = await CACHE.match(cacheKey);
-    if (hit) return hit;
+    const url = new URL(ctx.request.url);
+    const cacheKey = new Request(`${url.origin}${url.pathname}`, { method: "GET" });
+    const cacheable = ctx.request.method === "GET";
+    if (cacheable) {
+        const hit = await CACHE.match(cacheKey);
+        if (hit) return hit;
+    }
 
-    const day = new Date().toISOString().slice(0, 10);
-    const start = Math.floor(Date.parse(`${day}T00:00:00Z`) / 86400000);
+    const start = Math.floor(Date.now() / 86400000);
     const plane = FLEET[start % FLEET.length];
 
     let payload: Awaited<ReturnType<typeof picture>> = null;
@@ -86,8 +101,9 @@ export const onRequest: PagesFunction = async (ctx) => {
         console.error("plane: commons failed", error);
     }
 
-    const res = Response.json(payload ?? {}, { headers: { "Cache-Control": "public, s-maxage=3600" } });
-    ctx.waitUntil(CACHE.put(cacheKey, res.clone()));
-
+    const res = Response.json(payload ?? {}, {
+        headers: { "Cache-Control": `public, s-maxage=${payload ? 3600 : 60}` },
+    });
+    if (payload && cacheable) ctx.waitUntil(CACHE.put(cacheKey, res.clone()));
     return res;
 };

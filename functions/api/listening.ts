@@ -1,8 +1,10 @@
-interface Z_Env {
-    Z_LISTEN: KVNamespace;
-}
+import { getCache } from "../_lib/cache";
 
-interface Z_Lanyard {
+type ListenEnv = {
+    Z_LISTEN: KVNamespace;
+};
+
+interface Lanyard {
     listening_to_spotify?: boolean;
     spotify?: {
         song?: string;
@@ -12,7 +14,7 @@ interface Z_Lanyard {
     };
 }
 
-interface Z_Stored {
+interface Stored {
     song: string;
     artist: string;
     art: string;
@@ -20,79 +22,60 @@ interface Z_Stored {
     t: number;
 }
 
-const Z_Cache = (caches as unknown as { default: Cache }).default;
+const CACHE = getCache();
 
-function Z_CacheKey(request: Request): Request {
+function cacheKey(request: Request): Request {
     const url = new URL(request.url);
     return new Request(`${url.origin}${url.pathname}`, { method: "GET" });
 }
 
-export const onRequest: PagesFunction<Z_Env> = async (Z_Ctx) => {
-    const Z_Key = Z_CacheKey(Z_Ctx.request);
-    if (Z_Ctx.request.method === "GET") {
-        const Z_Hit = await Z_Cache.match(Z_Key);
-        if (Z_Hit) return Z_Hit;
+export const onRequest: PagesFunction<ListenEnv> = async (ctx) => {
+    const key = cacheKey(ctx.request);
+    if (ctx.request.method === "GET") {
+        const hit = await CACHE.match(key);
+        if (hit) return hit;
     }
-    const Z_Res = await Z_Track(Z_Ctx);
-    if (Z_Ctx.request.method === "GET") {
-        Z_Ctx.waitUntil(Z_Cache.put(Z_Key, Z_Res.clone()));
-    }
-    return Z_Res;
+    const res = await track(ctx);
+    if (ctx.request.method === "GET") ctx.waitUntil(CACHE.put(key, res.clone()));
+    return res;
 };
 
-async function Z_Track(Z_Ctx: EventContext<Z_Env, string, unknown>) {
-    const Z_Heads = { "Cache-Control": "public, s-maxage=15" };
-    const Z_LiveKey = "live";
-    const Z_LastKey = "last";
-    let Z_Seen = false;
+async function track(ctx: EventContext<ListenEnv, string, unknown>) {
+    const heads = { "Cache-Control": "public, s-maxage=15" };
+    let seen = false;
     try {
-        const Z_Res = await fetch("https://api.lanyard.rest/v1/users/1007939118925361212");
-        if (Z_Res.ok) {
-            Z_Seen = true;
-            const Z_Body = (await Z_Res.json()) as { data?: Z_Lanyard };
-            const Z_Sp = Z_Body?.data?.spotify;
-            if (Z_Body?.data?.listening_to_spotify && Z_Sp) {
-                const Z_TrackVal: Z_Stored = {
-                    song: Z_Sp.song ?? "",
-                    artist: Z_Sp.artist ?? "",
-                    art: Z_Sp.album_art_url ?? "",
-                    id: Z_Sp.track_id ?? "",
+        const res = await fetch("https://api.lanyard.rest/v1/users/1007939118925361212");
+        if (res.ok) {
+            seen = true;
+            const body = (await res.json()) as { data?: Lanyard };
+            const spotify = body?.data?.spotify;
+            if (body?.data?.listening_to_spotify && spotify) {
+                const live: Stored = {
+                    song: spotify.song ?? "",
+                    artist: spotify.artist ?? "",
+                    art: spotify.album_art_url ?? "",
+                    id: spotify.track_id ?? "",
                     t: Date.now(),
                 };
-                const Z_Prev = await Z_Ctx.env.Z_LISTEN.get<Z_Stored>(Z_LiveKey, "json");
-                if (Z_Prev?.id !== Z_TrackVal.id) {
-                    await Z_Ctx.env.Z_LISTEN.put(Z_LiveKey, JSON.stringify(Z_TrackVal));
+                const previous = await ctx.env.Z_LISTEN.get<Stored>("live", "json");
+                if (previous?.id !== live.id) {
+                    await ctx.env.Z_LISTEN.put("live", JSON.stringify(live));
                 }
-                return Response.json(
-                    { ...Z_TrackVal, live: true },
-                    {
-                        headers: Z_Heads,
-                    },
-                );
+                return Response.json({ ...live, live: true }, { headers: heads });
             }
         }
-    } catch (Z_E) {
-        console.warn("listening: lanyard failed", Z_E);
+    } catch (error) {
+        console.warn("listening: lanyard failed", error);
     }
-    if (Z_Seen) {
-        const Z_Was = await Z_Ctx.env.Z_LISTEN.get<Z_Stored>(Z_LiveKey, "json");
-        if (Z_Was?.song) {
-            const Z_Frozen = { ...Z_Was, t: Date.now() };
-            await Z_Ctx.env.Z_LISTEN.put(Z_LastKey, JSON.stringify(Z_Frozen));
-            await Z_Ctx.env.Z_LISTEN.delete(Z_LiveKey);
-            return Response.json(
-                { ...Z_Frozen, live: false },
-                {
-                    headers: Z_Heads,
-                },
-            );
+    if (seen) {
+        const was = await ctx.env.Z_LISTEN.get<Stored>("live", "json");
+        if (was?.song) {
+            const frozen = { ...was, t: Date.now() };
+            await ctx.env.Z_LISTEN.put("last", JSON.stringify(frozen));
+            await ctx.env.Z_LISTEN.delete("live");
+            return Response.json({ ...frozen, live: false }, { headers: heads });
         }
     }
-    const Z_Last = await Z_Ctx.env.Z_LISTEN.get<Z_Stored>(Z_LastKey, "json");
-    return Response.json(
-        { ...(Z_Last ?? {}), live: false },
-        {
-            headers: Z_Heads,
-        },
-    );
+    const last = await ctx.env.Z_LISTEN.get<Stored>("last", "json");
+    return Response.json({ ...(last ?? {}), live: false }, { headers: heads });
 }

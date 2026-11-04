@@ -1,4 +1,4 @@
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { createRemoteJWKSet, errors, jwtVerify } from "jose";
 import type { Env } from "./types";
 
 export type AccessResult = { ok: true; email: string } | { ok: false; status: 403 | 503 };
@@ -15,10 +15,15 @@ function getJwks(teamDomain: string): Jwks {
 }
 
 export async function verifyAccess(request: Request, env: Env): Promise<AccessResult> {
-    if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || !env.ADMIN_EMAIL) return { ok: false, status: 503 };
+    if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || !env.ADMIN_EMAIL)
+        return { ok: false, status: 503 };
 
     const url = new URL(request.url);
-    if (env.ENVIRONMENT === "dev" && env.DEV_BYPASS_ACCESS === "1" && url.hostname === "localhost") {
+    if (
+        env.ENVIRONMENT === "dev" &&
+        env.DEV_BYPASS_ACCESS === "1" &&
+        url.hostname === "localhost"
+    ) {
         return { ok: true, email: env.ADMIN_EMAIL };
     }
 
@@ -38,11 +43,20 @@ export async function verifyAccess(request: Request, env: Env): Promise<AccessRe
             issuer: teamDomain,
             audience: env.ACCESS_AUD,
         });
-        if (payload.email !== env.ADMIN_EMAIL) return { ok: false, status: 403 };
+        const email = typeof payload.email === "string" ? payload.email.toLowerCase() : "";
+        if (email !== env.ADMIN_EMAIL.toLowerCase()) return { ok: false, status: 403 };
         return { ok: true, email: env.ADMIN_EMAIL };
     } catch (error) {
-        const code = (error as { code?: string }).code ?? "";
-        if (code.includes("JWKS")) return { ok: false, status: 503 };
-        return { ok: false, status: 403 };
+        if (
+            error instanceof errors.JWKSTimeout ||
+            error instanceof errors.JWKSNoMatchingKey ||
+            error instanceof errors.JWKSMultipleMatchingKeys ||
+            error instanceof errors.JWKSInvalid
+        ) {
+            return { ok: false, status: 503 };
+        }
+        if (error instanceof errors.JOSEError) return { ok: false, status: 403 };
+        console.warn("access: unexpected verify failure", error);
+        return { ok: false, status: 503 };
     }
 }

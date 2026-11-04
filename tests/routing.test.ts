@@ -57,3 +57,15 @@ describe("cloudflare paths", () => {
         expect(decideRoute(pages, "/cdn-cgi/access/login")).toEqual({ kind: "pass" });
     });
 });
+
+describe("local and unknown hosts", () => {
+    it("passes localhost for dev", () => {
+        expect(decideRoute("localhost", "/admin")).toEqual({ kind: "pass" });
+        expect(decideRoute("127.0.0.1", "/i/abc")).toEqual({ kind: "pass" });
+    });
+
+    it("404s an unknown host", () => {
+        expect(decideRoute("example.com", "/")).toEqual({ kind: "not-found" });
+        expect(decideRoute("example.com", "/admin")).toEqual({ kind: "not-found" });
+    });
+});

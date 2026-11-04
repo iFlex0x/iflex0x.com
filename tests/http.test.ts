@@ -31,12 +31,24 @@ describe("responses", () => {
         expect(res.headers.get("cache-control")).toBe("no-store");
         expect(res.headers.get("referrer-policy")).toBe("no-referrer");
         expect(res.headers.get("x-robots-tag")).toContain("noindex");
+        expect(res.headers.get("strict-transport-security")).toContain("max-age=31536000");
+        expect(res.headers.get("permissions-policy")).toContain("payment=()");
+        expect(res.headers.get("x-frame-options")).toBe("DENY");
+        expect(res.headers.get("cross-origin-opener-policy")).toBe("same-origin");
+        expect(res.headers.get("cross-origin-resource-policy")).toBe("same-origin");
+        expect(res.headers.get("x-permitted-cross-domain-policies")).toBe("none");
         expect(res.headers.get("content-security-policy")).toContain("nonce-abc");
     });
 
     it("drops the body for HEAD", async () => {
         const res = htmlResponse("<p>x</p>", { kind: "invoice", nonce: "abc", head: true });
         expect(await res.text()).toBe("");
+    });
+
+    it("keeps error responses nonced-out", () => {
+        const res = htmlResponse("<p>x</p>", { kind: "error", status: 404 });
+        expect(res.status).toBe(404);
+        expect(res.headers.get("content-security-policy")).toContain("script-src 'none'");
     });
 
     it("marks JSON no-store", () => {

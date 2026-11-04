@@ -19,9 +19,6 @@ pnpm-debug.log*
 .dev.vars
 .dev.vars.*
 
-# browser artifacts
-.playwright-mcp/
-
 # OS-specific files
 .DS_Store
 Thumbs.db
