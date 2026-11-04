@@ -19,6 +19,7 @@ jobs:
                   node-version: 22
                   cache: pnpm
             - run: pnpm install --frozen-lockfile
+            - run: pnpm audit --prod
             - run: pnpm check
             - run: pnpm test
             - run: pnpm exec prettier --check .
