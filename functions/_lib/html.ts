@@ -9,7 +9,3 @@ const HTML_ESCAPES: Record<string, string> = {
 export function escapeHtml(value: string): string {
     return value.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
 }
-
-export function preserveLines(value: string): string {
-    return escapeHtml(value.replace(/\r\n?/g, "\n")).replace(/\n/g, "<br>");
-}

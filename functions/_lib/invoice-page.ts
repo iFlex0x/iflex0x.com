@@ -1,7 +1,8 @@
 import { itemAmountCents, formatNumber, formatUsd } from "./money";
 import { formatDisplayDate } from "./dates";
 import { shownStatus } from "./status";
-import { escapeHtml, preserveLines } from "./html";
+import { escapeHtml } from "./html";
+import { renderMarkdown } from "./markdown";
 import { pageShell } from "./layout";
 import { CONFIG, SITE_URL, INVOICE_URL } from "./config";
 import { invoiceHead } from "./embed";
@@ -42,9 +43,9 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
     </section>
     <section class="card" aria-labelledby="bill-heading">
         ${chip("user", "bill to", "bill-heading")}
-        <div class="name">${escapeHtml(row.client_name)}</div>
-        ${row.client_sub ? `<div class="sub">${escapeHtml(row.client_sub)}</div>` : ""}
-        ${lines.length ? `<div class="line">${lines.map((line) => `<span>${escapeHtml(line)}</span>`).join("")}</div>` : ""}
+        <div class="name">${renderMarkdown(row.client_name)}</div>
+        ${row.client_sub ? `<div class="sub">${renderMarkdown(row.client_sub)}</div>` : ""}
+        ${lines.length ? `<div class="line">${lines.map((line) => `<span>${renderMarkdown(line)}</span>`).join("")}</div>` : ""}
     </section>
 </div>`;
 
@@ -52,8 +53,8 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
         .map(
             (item) => `<tr>
     <td>
-        <div class="t">${escapeHtml(item.title)}</div>
-        ${item.desc ? `<div class="d">${escapeHtml(item.desc)}</div>` : ""}
+        <div class="t">${renderMarkdown(item.title)}</div>
+        ${item.desc ? `<div class="d">${renderMarkdown(item.desc)}</div>` : ""}
     </td>
     <td class="r m">${formatNumber(item.qtyHundredths)}</td>
     <td class="r m rate">${formatUsd(item.rateCents)}</td>
@@ -115,12 +116,12 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
     const totalsRows = [
         `<div class="trow"><span>subtotal</span><span class="m">${formatUsd(row.subtotal_cents)}</span></div>`,
         row.discount_cents > 0
-            ? `<div class="trow"><span>discount${body.discountLabel ? ` (${escapeHtml(body.discountLabel)})` : ""}</span><span class="m">-${formatUsd(row.discount_cents)}</span></div>`
+            ? `<div class="trow"><span>discount${body.discountLabel ? ` (${renderMarkdown(body.discountLabel)})` : ""}</span><span class="m">-${formatUsd(row.discount_cents)}</span></div>`
             : "",
         row.tax_cents > 0
             ? `<div class="trow"><span>tax (${formatNumber(body.taxBp)}%)</span><span class="m">${formatUsd(row.tax_cents)}</span></div>`
             : "",
-        `<div class="trow total"><span class="k">total due</span><span class="v">${formatUsd(row.total_cents)}</span></div>`,
+        `<div class="trow total"><span class="k">${paid ? "total paid" : "total due"}</span><span class="v">${formatUsd(row.total_cents)}</span></div>`,
     ].join("");
 
     const totals = `<section class="card totals" aria-labelledby="totals-heading">
@@ -131,7 +132,7 @@ export function renderInvoicePage(row: InvoiceRow, opts: { nonce: string; today:
     const notes = body.note
         ? `<section class="card notes" aria-labelledby="notes-heading">
     ${chip("pencil", "notes", "notes-heading")}
-    <p>${preserveLines(body.note)}</p>
+    <p>${renderMarkdown(body.note)}</p>
 </section>`
         : "";
 
